@@ -9,7 +9,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { CollapseHeaderComponent } from '../../../common/collapse-header/collapse-header.component';
 import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { routes } from '../../../../shared/routes/routes';
-import { IApiResponse } from '../../../../core/models/shared.dto';
+import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
 import { IAddAccount, IGetAccount } from '../../../../core/models/account.dto';
 import { AccountService } from '../../../../core/services/account.service';
@@ -95,8 +95,9 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
 
   private GetAccount(): void {
     this.accountService.GetAccount().subscribe({
-      next: (res: IApiResponse<IGetAccount[]>) => {
-        this.accounts = res.data || [];
+      next: (res: IApiResponseWithList<IGetAccount[]>) => {
+        debugger
+        this.accounts = res.data.data || [];
         if (this.accounts.length === 0) this.emptyTable = 'No Data Available';
       },
       error: () => { this.emptyTable = 'No Data Available'; }

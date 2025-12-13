@@ -1,6 +1,5 @@
 export interface ILogin {
 
-  companyCode: string;
       userName: string;
       password: string;
 }

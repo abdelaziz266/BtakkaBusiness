@@ -280,10 +280,13 @@ export const routes={
 
   accountsDetails: '/accounts/accounts-details',
   accountsGrid: '/account',
-// Accounts
+// Cost Center
 
   CostCenter: '/cost-center',
-
+  //FinishingInspectionRequest
+  FinishingInspectionRequest:'/FinishingInspectionRequest',
+//ContractRequest
+  ContractRequest:'/ContractRequest',
   // Error Pages
  
   error404: '/error/error-404',

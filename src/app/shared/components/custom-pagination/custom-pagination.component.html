@@ -1,0 +1,54 @@
+<nav *ngIf="totalPages > 1 && tableData.length > 0" class="my-3">
+  <ul class="pagination pagination-rounded pagination-boxed mb-0 flex-wrap gap-lg-0 gap-md-0 gap-1">
+    <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
+      <a class="page-link" href="javascript:void(0);" aria-label="Previous" (click)="getMoreData('previous')">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <ng-container *ngFor="let item of pageNumberArray; let i = index">
+      <li 
+        class="page-item" 
+        [class.active]="item === currentPage"
+        [ngClass]="
+          (pageNumberArray[currentPage - 2] > item &&
+            item !== 1 &&
+            pageNumberArray.length > 6) ||
+          (pageNumberArray[currentPage] < item &&
+            item !== 1 &&
+            pageNumberArray.length > 6 &&
+            pageNumberArray.length !== item)
+            ? 'hide-page-no'
+            : 'show-page-no'
+        ">
+        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(item)">{{ item }}</a>
+      </li>
+
+      <li class="page-item" *ngIf="i === 0 && pageNumberArray.length > 6 && currentPage > 2" [hidden]="currentPage === 1">
+        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(currentPage - 2)">...</a>
+      </li>
+
+      <li 
+        class="page-item"
+        *ngIf="i === pageNumberArray.length - 2 && pageNumberArray.length > 6"
+        [hidden]="
+          currentPage >= pageNumberArray[pageNumberArray.length - 2] ||
+          totalData < serialNumberArray[serialNumberArray.length - 1]
+        ">
+        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(currentPage + 2)">...</a>
+      </li>
+    </ng-container>
+
+    <li 
+      class="page-item" 
+      [ngClass]="{
+        disabled:
+          currentPage === pageNumberArray[pageNumberArray.length - 1] ||
+          tableData.length === 0
+      }">
+      <a class="page-link" href="javascript:void(0);" aria-label="Next" (click)="getMoreData('next')">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>

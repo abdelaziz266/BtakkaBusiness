@@ -23,7 +23,7 @@
     --submenu-active-color: var(--primary);
     --menu-active-color: var(--primary);
     --menu-active-bg: var(--primary-transparent);
-    --primary: #354ba0;
+    --primary: #D71716;
     --secondary: #FFA201;
     --light: #F7F8F9;
     --dark: #0A0C0C;
@@ -61,7 +61,7 @@
     --teal-100: #cfe9e6;
     --indigo-100: #d7d7f5;
     --light-hover: #dee0e1;
-    --primary-hover: #354ba0;
+    --primary-hover: #c11a06;
     --secondary-hover: #e08f01;
     --info-hover: #2972d5;
     --warning-hover: #e0a701;
@@ -83,7 +83,7 @@
     --light-transparent: #E8E8E8;
     --orange-transparent: #FFF0EB;
     --pink-transparent: #FDEDF8;
-    --primary-transparent: #ccd4f3;
+    --primary-transparent: #fce9e6;
     --purple-transparent: #F1EBF7;
     --secondary-transparent: #fff6e6;
     --success-transparent: #e8f9e8;
@@ -201,7 +201,7 @@
     --menu-icon-bg: rgba(255, 255, 255, 0.05);
 }
 :root[data-sidebar=sidebar4] {
-    --menu-bg: #354ba0;
+    --menu-bg: #D71716;
     --menu-item-color: #B5B5B5;
     --menu-item-hover-color: #FFA201;
     --menu-item-border: rgba(255, 255, 255, 0.1);
@@ -400,7 +400,7 @@
     --topbar-item-shadow: 0px 4px 4px 0px rgba(0,0,0,0.15);
 }
 :root[data-topbar=topbar3] {
-    --topbar-bg: #354ba0;
+    --topbar-bg: #D71716;
     --topbar-item-color: #fff;
     --topbar-item-hover-color: #F7F8F9;
     --topbar-item-hover-bg: rgba(10, 12, 12, 0.1);
@@ -620,7 +620,7 @@ $darkmode-white: #fff;
 $darkmode-dark: #0A0C0C;
 
 $theme-colors: (
-    "primary": #354ba0,
+    "primary": #D71716,
     "secondary": #FFA201,
     "success": #1ABE17,
     "info": #2F80ED,

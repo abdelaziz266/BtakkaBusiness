@@ -7,23 +7,10 @@
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-100 p-4" novalidate>
               
               <div class="text-center mb-4 auth-logo">
-                <img src="assets/images/PNGTransparent.png" class="img-fluid" alt="Logo">
+                <img src="assets/images/Business.png" class="img-fluid" alt="Logo">
               </div>
 
-              <!-- Company Code -->
-              <div class="mb-3">
-                <label class="form-label">Company Code</label>
-                <div class="input-group input-group-flat">
-                  <input type="text" formControlName="companyCode" class="form-control">
-                  <span class="input-group-text">
-                    <i class="ti ti-building"></i>
-                  </span>
-                </div>
-                <span class="text-danger" *ngIf="companyCode.invalid && (companyCode.dirty || companyCode.touched)">
-                  <span *ngIf="companyCode.errors?.['required']">Company Code is required.</span>
-                </span>
-              </div>
-
+              
               <!-- User Name -->
               <div class="mb-3">
                 <label class="form-label">User Name</label>

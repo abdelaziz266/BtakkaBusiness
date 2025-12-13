@@ -124,8 +124,8 @@ app-custom-pagination .pagination_section {
 
 .page-item.active .page-link {
   color: #fff;
-  background-color: #354ba0;
-  border-color: #354ba0
+  background-color: #D71716;
+  border-color: #D71716
 ;
 }
 
@@ -167,7 +167,7 @@ mat-tooltip-component .mat-mdc-tooltip .mdc-tooltip__surface {
 
 bs-datepicker-container .theme-green .bs-datepicker-head,
 .bs-datepicker.theme-green .bs-datepicker-head {
-  background-color: #354ba0
+  background-color: #D71716
 ;
 }
 
@@ -197,12 +197,12 @@ bs-datepicker-container
   table
   td[class*="select-"]
   span:after {
-  background-color: #354ba0
+  background-color: #D71716
 ;
 }
 
 .theme-green .bs-datepicker-body table td.week span {
-  color: #354ba0
+  color: #D71716
 ;
 }
 
@@ -318,7 +318,7 @@ div.p-multiselect.p-multiselect-chip .p-multiselect-token {
 }
 
 // .sidebar .sidebar-menu>ul>li ul li a.active {
-//   color: #354ba0;
+//   color: #D71716;
 // }
 
 lightgallery {
@@ -3166,7 +3166,7 @@ div.toggle-popup2 {
   background: rgba(0, 0, 0, 0.75);
 }
 .right-user-side .slime-grp .left-chat-title .contact-close_call .close_profile:hover {
-  background: #354ba0;
+  background: #D71716;
   color: #fff;
 }
 .themedark .header .header-left {
@@ -3443,7 +3443,7 @@ table.mat-sort {
     padding: 6px 12px;
   }
   .p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
-    background: #354ba0;
+    background: #D71716;
     color: #fff;
   }
   p-checkbox{
@@ -3520,7 +3520,7 @@ table.mat-sort {
   justify-content: space-between !important;
 }
 .p-datepicker-ampm-picker span{
-  background: #354ba0 !important; /*primary color*/
+  background: #D71716 !important; /*primary color*/
   color: #ffffff;
   padding: 4px;
   font-size: 10px !important;
@@ -3529,6 +3529,33 @@ table.mat-sort {
 .p-inputtext:enabled:focus{
   border-color:  #E5E7EB !important;
 }
+
+/* Custom scrollbar styling */
+html {
+  /* Firefox */
+  scrollbar-color: #D71716 #f5f5f5;
+  scrollbar-width: thin;
+}
+
+/* WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D71716;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b81212;
+}
+
 .sidebar.opened{
   display: block;
 }
@@ -3635,4 +3662,7 @@ ngx-editor .NgxEditor ,.NgxEditor__MenuBar{
 }
 [data-bs-theme=light] .super-admin-logo-light{
   display: none;
+}
+.table tbody tr td{
+  padding: 10px !important;
 }

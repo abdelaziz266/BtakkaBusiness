@@ -21,9 +21,8 @@ export class AuthService {
   hide() {
     this.loadingSubject.next(false);
   }
-  login(companyCode: string, userName: string, password: string): Observable<any> {
+  login(userName: string, password: string): Observable<any> {
     const body: ILogin = {
-      companyCode,
       userName,
       password
     }; 

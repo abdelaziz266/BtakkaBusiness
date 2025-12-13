@@ -33,6 +33,16 @@ export const routes: Routes = [
             path: 'cost-center', // 👈 كده URL هيبقى /co
             loadComponent: () => import('./features/super-admin/CostCenter/cost-center-home/cost-center-home.component').then(m => m.CostCenterHomeComponent),
             canActivate: [AuthGuard]
+          },
+          {
+            path: 'FinishingInspectionRequest', // 👈 كده URL هيبقى /co
+            loadComponent: () => import('./features/super-admin/FinishingInspectionRequest/get-finishing-inspection-request/get-finishing-inspection-request.component').then(m => m.GetFinishingInspectionRequestComponent),
+            canActivate: [AuthGuard]
+          },
+          {
+            path: 'ContractRequest', // 👈 كده URL هيبقى /co
+            loadComponent: () => import('./features/super-admin/ContractRequest/get-contract-request/get-contract-request.component').then(m => m.GetContractRequestComponent),
+            canActivate: [AuthGuard]
           }
         ]
       }

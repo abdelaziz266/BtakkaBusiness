@@ -31,16 +31,10 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // ✅ إنشاء الـ FormGroup
     this.loginForm = this.fb.group({
-      companyCode: ['', [Validators.required]],
       userName: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(5)]],
     });
 
-  }
-
-  // getters لتسهيل الوصول للفورم كونترولز
-  get companyCode() {
-    return this.loginForm.get('companyCode')!;
   }
 
   get userName() {
@@ -51,13 +45,14 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password')!;
   }
   onSubmit() {
+    debugger
   if (this.loginForm.invalid) {
     this.loginForm.markAllAsTouched();
     return;
   }
 
   this.loading = true;
-  this.authService.login(this.companyCode.value!, this.userName.value!, this.password.value!).subscribe({
+  this.authService.login(this.userName.value!, this.password.value!).subscribe({
     next: (res: IApiResponse<ILoginResponse>) => {
       if (res.data?.token) {
         debugger;

@@ -2,6 +2,7 @@
 export const environment = {
     production: true,
     apiUrl: 'http://alahramanc-001-site8.rtempurl.com/api/',
+    apiUrlBtakka: 'https://alahramanc-001-site3.gtempurl.com/api/',
     secretKey: '16171871AhmedSalah@@##', // هذا هو المفتاح السري
 };
 //Production
