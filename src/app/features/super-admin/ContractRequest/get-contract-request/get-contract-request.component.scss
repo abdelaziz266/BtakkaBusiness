@@ -1,0 +1,67 @@
+.table-scroll {
+	/* Set desired height and enable vertical scrolling */
+	height: 420px;
+  
+  /* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  
+  /* Hide scrollbar for IE and old Edge */
+  -ms-overflow-style: none;
+	background: #fff;
+	overflow: hidden;
+}
+
+.table-scroll .table-responsive {
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: auto;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	table {
+		width: 100%;
+		min-width: 600px;
+
+		thead {
+			position: sticky;
+			top: -1px;
+			z-index: 20;
+			background-color: #fff !important;
+
+			th {
+				white-space: nowrap;
+				padding: 12px !important;
+				min-width: 120px;
+				background-color: #fff !important;
+				z-index: 21;
+				position: relative;
+			}
+		}
+
+		tbody {
+			tr {
+				td {
+					white-space: nowrap;
+					padding: 10px !important;
+				}
+			}
+		}
+	}
+}
+
+.sticky-pagination {
+	/* Keep pagination visible at the bottom of the card body */
+	position: sticky;
+	bottom: 0;
+	background: transparent;
+}

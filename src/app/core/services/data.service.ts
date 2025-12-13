@@ -424,7 +424,7 @@ export class DataService {
   public sidebarData1: any[] = [
     
     {
-      tittle: 'CRM',
+      tittle: 'Btakka Home',
       showAsTab: true,
       separateRoute: false,
       menu: [
@@ -448,7 +448,7 @@ export class DataService {
         // },
         {
           menuValue: 'Inspection Request',
-          icon: 'building-community',
+          icon: 'checklist',
           hasSubRoute: false,
           showSubRoute: false,
           route: routes.FinishingInspectionRequest,
@@ -457,7 +457,7 @@ export class DataService {
         },
         {
           menuValue: 'Contract Request',
-          icon: 'building-community',
+          icon: 'file-text',
           hasSubRoute: false,
           showSubRoute: false,
           route: routes.ContractRequest,
