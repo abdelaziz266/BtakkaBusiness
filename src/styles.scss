@@ -140,6 +140,57 @@ app-custom-pagination .pagination_section {
   margin-top: 25px !important;
 }
 
+// Sticky thead for all tables
+.table-responsive {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  table {
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background-color: #fff !important;
+
+      tr th {
+        position: relative;
+        z-index: 21;
+        background-color: #fff !important;
+      }
+    }
+  }
+}
+
+table thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: #fff !important;
+
+  tr th {
+    position: relative;
+    z-index: 21;
+    background-color: #fff !important;
+  }
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: #fff !important;
+  
+  th {
+    position: relative;
+    z-index: 21;
+    background-color: #fff !important;
+  }
+}
+
 // data table **
 
 @media (min-width: 991.98px) {
