@@ -43,6 +43,11 @@ export const routes: Routes = [
             path: 'ContractRequest', // 👈 كده URL هيبقى /co
             loadComponent: () => import('./features/super-admin/ContractRequest/get-contract-request/get-contract-request.component').then(m => m.GetContractRequestComponent),
             canActivate: [AuthGuard]
+          },
+          {
+            path: 'Planes', // 👈 كده URL هيبقى /co
+            loadComponent: () => import('./features/super-admin/planes/planes/planes.component').then(m => m.PlanesComponent),
+            canActivate: [AuthGuard]
           }
         ]
       }

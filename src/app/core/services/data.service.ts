@@ -463,6 +463,15 @@ export class DataService {
           route: routes.ContractRequest,
           base: 'ContractRequest',
           subRoutes: [],
+        },
+        {
+          menuValue: 'Planes',
+          icon: 'package',
+          hasSubRoute: false,
+          showSubRoute: false,
+          route: routes.Planes,
+          base: 'Planes',
+          subRoutes: [],
         }
       ],
     },

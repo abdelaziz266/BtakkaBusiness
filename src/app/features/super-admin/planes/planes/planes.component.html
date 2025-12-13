@@ -1,0 +1,148 @@
+<div class="content">
+  <!-- Page Header -->
+  <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
+    <div>
+      <h4 class="mb-1">Plans</h4>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0 p-0">
+          <li class="breadcrumb-item"><a [routerLink]="routes.index">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Plans</li>
+        </ol>
+      </nav>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_add">
+      <i class="ti ti-plus me-2"></i>Add New Plan
+    </button>
+  </div>
+
+  <!-- Cards Container with Drag & Drop -->
+  <div class="cards-container" cdkDropList #cardList="cdkDropList" [cdkDropListData]="cards" 
+       (cdkDropListDropped)="drop($event)">
+    
+    <div *ngIf="cards.length === 0" class="alert alert-info">
+      No plans available. <a href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_add">Add one</a>
+    </div>
+
+    <div *ngFor="let card of cards" cdkDrag class="card-wrapper">
+      <div class="card plan-card">
+        <!-- Drag Handle -->
+        <div class="drag-handle" cdkDragHandle title="Drag to reorder">
+          <i class="ti ti-arrows-move"></i>
+        </div>
+
+        <div class="card-body">
+          <h5 class="card-title">{{ card.title }}</h5>
+          <div class="card-amount">
+            <span class="amount-symbol">$</span>
+            <span class="amount-value">{{ card.amount | number:'1.2-2' }}</span>
+            <span class="amount-period">/month</span>
+          </div>
+          <p class="card-text">{{ card.description }}</p>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card-actions">
+          <button class="btn btn-sm btn-primary" 
+                  data-bs-toggle="offcanvas" 
+                  data-bs-target="#offcanvas_edit"
+                  (click)="openEditModal(card.id)">
+            <i class="ti ti-edit me-1"></i>Edit
+          </button>
+          <button class="btn btn-sm btn-danger" 
+                  (click)="deleteCard(card.id)">
+            <i class="ti ti-trash me-1"></i>Delete
+          </button>
+        </div>
+
+        <!-- Order Badge -->
+        <span class="badge bg-secondary position-absolute top-0 end-0 m-3">{{ card.order }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Card Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas_add" #offcanvasAdd>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Add New Plan</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form [formGroup]="cardForm" (ngSubmit)="submitForm()">
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" formControlName="title" 
+               [class.is-invalid]="cardForm.get('title')?.invalid && cardForm.get('title')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('title')?.invalid && cardForm.get('title')?.touched">
+          Title is required
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Amount ($)</label>
+        <input type="number" class="form-control" formControlName="amount" step="0.01"
+               [class.is-invalid]="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
+          <span *ngIf="cardForm.get('amount')?.errors?.['required']">Amount is required</span>
+          <span *ngIf="cardForm.get('amount')?.errors?.['min']">Amount must be 0 or greater</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" formControlName="description" rows="4"
+                  [class.is-invalid]="cardForm.get('description')?.invalid && cardForm.get('description')?.touched"></textarea>
+        <div class="invalid-feedback" *ngIf="cardForm.get('description')?.invalid && cardForm.get('description')?.touched">
+          Description is required
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="ti ti-plus me-2"></i>Add Plan
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Card Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas_edit" #offcanvasEdit>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">Edit Plan</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <form [formGroup]="cardForm" (ngSubmit)="submitForm()">
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" formControlName="title"
+               [class.is-invalid]="cardForm.get('title')?.invalid && cardForm.get('title')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('title')?.invalid && cardForm.get('title')?.touched">
+          Title is required
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Amount ($)</label>
+        <input type="number" class="form-control" formControlName="amount" step="0.01"
+               [class.is-invalid]="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
+          <span *ngIf="cardForm.get('amount')?.errors?.['required']">Amount is required</span>
+          <span *ngIf="cardForm.get('amount')?.errors?.['min']">Amount must be 0 or greater</span>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" formControlName="description" rows="4"
+                  [class.is-invalid]="cardForm.get('description')?.invalid && cardForm.get('description')?.touched"></textarea>
+        <div class="invalid-feedback" *ngIf="cardForm.get('description')?.invalid && cardForm.get('description')?.touched">
+          Description is required
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="ti ti-check me-2"></i>Save Changes
+      </button>
+    </form>
+  </div>
+</div>

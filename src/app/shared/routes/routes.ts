@@ -287,6 +287,8 @@ export const routes={
   FinishingInspectionRequest:'/FinishingInspectionRequest',
 //ContractRequest
   ContractRequest:'/ContractRequest',
+  //Planes
+  Planes:'/Planes',
   // Error Pages
  
   error404: '/error/error-404',
