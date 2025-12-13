@@ -1,0 +1,27 @@
+.table-scroll {
+	/* Set desired height and enable vertical scrolling */
+	height: 420px;
+	overflow-y: auto;
+  
+  /* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  
+  /* Hide scrollbar for IE and old Edge */
+  -ms-overflow-style: none;
+	position: sticky;
+	top: 0;
+	background: #fff;
+	z-index: 2;
+}
+
+.sticky-pagination {
+	/* Keep pagination visible at the bottom of the card body */
+	position: sticky;
+	bottom: 0;
+	background: transparent;
+}
