@@ -33,9 +33,9 @@
         <div class="card-body">
           <h5 class="card-title">{{ card.title }}</h5>
           <div class="card-amount">
-            <span class="amount-symbol">$</span>
-            <span class="amount-value">{{ card.amount | number:'1.2-2' }}</span>
-            <span class="amount-period">/month</span>
+            <span class="amount-symbol">₤</span>
+            <span class="amount-value">{{ card.value | number:'1.2-2' }}</span>
+            <!-- <span class="amount-period">/month</span> -->
           </div>
           <p class="card-text">{{ card.description }}</p>
         </div>
@@ -79,12 +79,12 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Amount ($)</label>
-        <input type="number" class="form-control" formControlName="amount" step="0.01"
-               [class.is-invalid]="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
-        <div class="invalid-feedback" *ngIf="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
-          <span *ngIf="cardForm.get('amount')?.errors?.['required']">Amount is required</span>
-          <span *ngIf="cardForm.get('amount')?.errors?.['min']">Amount must be 0 or greater</span>
+        <label class="form-label">value (₤)</label>
+        <input type="number" class="form-control" formControlName="value" step="0.01"
+               [class.is-invalid]="cardForm.get('value')?.invalid && cardForm.get('value')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('value')?.invalid && cardForm.get('value')?.touched">
+          <span *ngIf="cardForm.get('value')?.errors?.['required']">value is required</span>
+          <span *ngIf="cardForm.get('value')?.errors?.['min']">value must be 0 or greater</span>
         </div>
       </div>
 
@@ -122,12 +122,12 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Amount ($)</label>
-        <input type="number" class="form-control" formControlName="amount" step="0.01"
-               [class.is-invalid]="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
-        <div class="invalid-feedback" *ngIf="cardForm.get('amount')?.invalid && cardForm.get('amount')?.touched">
-          <span *ngIf="cardForm.get('amount')?.errors?.['required']">Amount is required</span>
-          <span *ngIf="cardForm.get('amount')?.errors?.['min']">Amount must be 0 or greater</span>
+        <label class="form-label">value (₤)</label>
+        <input type="number" class="form-control" formControlName="value" step="0.01"
+               [class.is-invalid]="cardForm.get('value')?.invalid && cardForm.get('value')?.touched">
+        <div class="invalid-feedback" *ngIf="cardForm.get('value')?.invalid && cardForm.get('value')?.touched">
+          <span *ngIf="cardForm.get('value')?.errors?.['required']">value is required</span>
+          <span *ngIf="cardForm.get('value')?.errors?.['min']">value must be 0 or greater</span>
         </div>
       </div>
 

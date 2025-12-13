@@ -6,18 +6,20 @@ import { RouterLink } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
+import { PlansService } from '../../../../core/services/plans.service';
+import { IGetPlansDTO } from '../../../../core/models/plans.dto';
 
 export interface ICard {
   id: number;
   title: string;
-  amount: number;
+  value: number;
   description: string;
   order: number;
 }
 
 export interface IAddCard {
   title: string;
-  amount: number;
+  value: number;
   description: string;
 }
 
@@ -40,15 +42,39 @@ export class PlanesComponent implements OnInit, AfterViewInit {
 
   constructor(
     private fb: FormBuilder,
-    private sharedService: SharedService
+    private sharedService: SharedService,
+    private plansService: PlansService
   ) { }
 
   ngOnInit(): void {
-    this.generateFakeCards();
+    this.loadPlans();
     this.cardForm = this.fb.group({
       title: ['', Validators.required],
-      amount: ['', [Validators.required, Validators.min(0)]],
+      value: ['', [Validators.required, Validators.min(0)]],
       description: ['', Validators.required]
+    });
+  }
+
+  private loadPlans(): void {
+    this.plansService.getPlans().subscribe({
+      next: (response: IApiResponse<IGetPlansDTO[]>) => {
+        if (response.data) {
+          // Map API response to ICard with fake order if not present
+          this.cards = response.data.map((plan: IGetPlansDTO, index: number) => ({
+            id: plan.id,
+            title: plan.title,
+            value: plan.value || 0,
+            description: plan.description,
+            order: plan.order || index + 1  // Use order from API or generate fake one
+          }));
+        }
+        debugger
+      },
+      error: (error) => {
+        console.error('Failed to load plans', error);
+        // Fallback to fake data if API fails
+        this.generateFakeCards();
+      }
     });
   }
 
@@ -71,21 +97,21 @@ export class PlanesComponent implements OnInit, AfterViewInit {
       {
         id: 1,
         title: 'Basic Plan',
-        amount: 9.99,
+        value: 9.99,
         description: 'Essential features for individuals',
         order: 1
       },
       {
         id: 2,
         title: 'Professional Plan',
-        amount: 29.99,
+        value: 29.99,
         description: 'Advanced features for professionals',
         order: 2
       },
       {
         id: 3,
         title: 'Enterprise Plan',
-        amount: 99.99,
+        value: 99.99,
         description: 'Full features for large teams',
         order: 3
       }
@@ -97,7 +123,7 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     this.selectedCardForEdit = null;
     this.cardForm.reset({
       title: '',
-      amount: '',
+      value: '',
       description: ''
     });
   }
@@ -118,21 +144,26 @@ export class PlanesComponent implements OnInit, AfterViewInit {
 
   createCard(): void {
     const values = this.cardForm.value;
-    const newCard: ICard = {
-      id: Math.max(...this.cards.map(c => c.id), 0) + 1,
+    const newCard: IAddCard = {
       title: values.title,
-      amount: values.amount,
+      value: values.value,
       description: values.description,
-      order: this.cards.length + 1
     };
 
-    this.cards.push(newCard);
-    const offcanvas = document.getElementById('offcanvas_add');
-    if (offcanvas) {
-      (window as any).bootstrap?.Offcanvas.getOrCreateInstance(offcanvas)?.hide();
-    }
-    this.sharedService.handleResponse({ status: 200, message: 'Card added successfully', data: null, errors: [], errorCode: null });
-    this.resetForm();
+    this.plansService.createPlan(newCard).subscribe({
+      next: (response: IApiResponse<IGetPlansDTO>) => {
+        this.loadPlans();
+        const offcanvas = document.getElementById('offcanvas_add');
+        if (offcanvas) {
+          (window as any).bootstrap?.Offcanvas.getOrCreateInstance(offcanvas)?.hide();
+        }
+        this.sharedService.handleResponse({ status: response.status, message: response.message, data: null, errors: [], errorCode: null });
+        this.resetForm();
+      },
+      error: (error) => {
+        this.sharedService.handleResponse({ status: 500, message: 'Failed to add card', data: null, errors: [error], errorCode: null });
+      }
+    });
   }
 
   editCard(): void {
@@ -145,7 +176,7 @@ export class PlanesComponent implements OnInit, AfterViewInit {
       this.cards[cardIndex] = {
         ...this.cards[cardIndex],
         title: values.title,
-        amount: values.amount,
+        value: values.value,
         description: values.description
       };
 
@@ -165,7 +196,7 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     if (card) {
       this.cardForm.patchValue({
         title: card.title,
-        amount: card.amount,
+        value: card.value,
         description: card.description
       });
     }
