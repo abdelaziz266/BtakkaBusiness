@@ -1,0 +1,75 @@
+<div class="account-page bg-white">
+  <div class="main-wrapper">
+    <div class="overflow-hidden p-3 acc-vh">
+      <div class="row vh-100 w-100 g-0">
+        <div class="col-lg-6 d-flex align-items-center justify-content-center vh-100">
+          <div class="col-md-10">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-100 p-4" novalidate>
+              
+              <div class="text-center mb-4 auth-logo">
+                <img src="assets/images/PNGTransparent.png" class="img-fluid" alt="Logo">
+              </div>
+
+              <!-- Company Code -->
+              <div class="mb-3">
+                <label class="form-label">Company Code</label>
+                <div class="input-group input-group-flat">
+                  <input type="text" formControlName="companyCode" class="form-control">
+                  <span class="input-group-text">
+                    <i class="ti ti-building"></i>
+                  </span>
+                </div>
+                <span class="text-danger" *ngIf="companyCode.invalid && (companyCode.dirty || companyCode.touched)">
+                  <span *ngIf="companyCode.errors?.['required']">Company Code is required.</span>
+                </span>
+              </div>
+
+              <!-- User Name -->
+              <div class="mb-3">
+                <label class="form-label">User Name</label>
+                <div class="input-group input-group-flat">
+                  <input type="text" formControlName="userName" class="form-control">
+                  <span class="input-group-text">
+                    <i class="ti ti-user"></i>
+                  </span>
+                </div>
+                <span class="text-danger" *ngIf="userName.invalid && (userName.dirty || userName.touched)">
+                  <span *ngIf="userName.errors?.['required']">User Name is required.</span>
+                </span>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="input-group input-group-flat pass-group">
+                  <input [type]="passwordVisible ? 'text' : 'password'" 
+                         formControlName="password" 
+                         class="form-control">
+                  <span class="input-group-text toggle-password" (click)="togglePassword()" tabindex="0">
+                    <i class="ti" [ngClass]="passwordVisible ? 'ti-eye' : 'ti-eye-off'"></i>
+                  </span>
+                </div>
+                <span class="text-danger" *ngIf="password.invalid && (password.dirty || password.touched)">
+                  <span *ngIf="password.errors?.['required']">Password is required.</span>
+                  <span *ngIf="password.errors?.['minlength']">
+                    Password must be at least 5 characters.
+                  </span>
+                </span>
+              </div>
+
+              <!-- Submit -->
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+                  {{ loading ? 'Signing in...' : 'Sign In' }}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-6 account-bg-01"></div>
+      </div>
+    </div>
+  </div>
+</div>

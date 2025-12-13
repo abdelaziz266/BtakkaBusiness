@@ -1,0 +1,149 @@
+<!-- Sidebar -->
+<div
+  class="sidebar"
+  id="sidebar"
+  (mouseover)="miniSideBarMouseHover('over')"
+  (mouseout)="miniSideBarMouseHover('out')"
+  (focus)="miniSideBarMouseHover('over')"
+  (blur)="miniSideBarMouseHover('out')"
+  tabindex="0"
+>
+  <div class="sidebar-logo">
+    <div>
+      <!-- Logo Normal -->
+      <a [routerLink]="routes.index" class="logo logo-normal">
+        <img src="assets/images/PNGTransparent.png" alt="Logo" style="width: 30px; height: 30px;"/> <h5 class="text-primary
+
+" style="display: inline-block;">S-HUB</h5>
+      </a>
+
+      <!-- Logo Small -->
+      <a [routerLink]="routes.index" class="logo-small">
+        <img src="assets/img/logo-small.svg" alt="Logo" />
+      </a>
+
+      <!-- Logo Dark -->
+      <a [routerLink]="routes.index" class="dark-logo">
+        <img src="assets/img/logo-white.svg" alt="Logo" />
+      </a>
+    </div>
+
+    <button
+      class="sidenav-toggle-btn btn border-0 p-0 active"
+      id="toggle_btn"
+      (click)="onToggleSidebar()"
+    >
+      <i class="ti ti-arrow-bar-to-left"></i>
+    </button>
+
+    <!-- Sidebar Menu Close -->
+    <button class="sidebar-close" (click)="toggleSidebar()">
+      <i class="ti ti-x align-middle"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-inner slimscroll">
+    <ng-scrollbar>
+      <div id="sidebar-menu" class="sidebar-menu">
+        <ul>
+          <!-- main titles -->
+          <ng-container *ngFor="let mainTittle of side_bar_data; trackBy: trackMainTitle">
+            <li class="menu-title">
+              <span>{{ mainTittle.tittle }}</span>
+            </li>
+
+            <li>
+              <ul>
+                <!-- menus -->
+                <ng-container *ngFor="let menu of mainTittle?.menu; trackBy: trackMenu">
+                  <!-- no sub-route -->
+                  <li >
+                    <a [routerLink]="menu?.route" (click)="expandSubMenus(menu)">
+                      <i class="ti" [class]="'ti-' + menu.icon"></i>
+                      <span>{{ menu?.menuValue }}</span>
+                    </a>
+                  </li>
+
+                  <!-- one-level submenu -->
+                  <!-- <li *ngIf="menu?.hasSubRoute === true" class="submenu">
+                    <a
+                      href="javascript:void(0)"
+                      (click)="expandSubMenus(menu)"
+                      [ngClass]="menu.showSubRoute ? 'subdrop' : ''"
+                      [class.active]="base === menu.base"
+                    >
+                      <i class="ti" [class]="'ti-' + menu.icon"></i>
+                      <span>{{ menu.menuValue }}</span>
+                      <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul [ngClass]="menu.showSubRoute ? 'd-block' : 'd-none'">
+                      <li *ngFor="let subMenus of menu.subMenus; trackBy: trackSubMenu">
+                        <a
+                          [routerLink]="subMenus.route"
+                          [class.active]="page === subMenus.base || base === subMenus.base"
+                        >
+                          {{ subMenus.menuValue }}
+                        </a>
+                      </li>
+                    </ul>
+                  </li> -->
+
+                  <!-- two-level submenu -->
+                  
+                </ng-container>
+              </ul>
+            </li>
+          </ng-container>
+
+          <!-- Help section -->
+          <!-- <li class="menu-title"><span>Help</span></li>
+          <li>
+            <ul>
+              <li>
+                <a href="javascript:void(0);">
+                  <i class="ti ti-file-stack"></i>
+                  <span>Documentation</span>
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0);">
+                  <i class="ti ti-arrow-capsule"></i>
+                  <span>Changelog v2.3.0</span>
+                </a>
+              </li>
+              <li class="submenu">
+                <a href="javascript:void(0);" (click)="multiLevelOne()">
+                  <i class="ti ti-menu-deep"></i>
+                  <span>Multi Level</span>
+                  <span class="menu-arrow"></span>
+                </a>
+                <ul [ngStyle]="{ display: multiLevel1 ? 'block' : '' }">
+                  <li><a href="javascript:void(0);">Level 1.1</a></li>
+                  <li class="submenu submenu-two">
+                    <a href="javascript:void(0);" (click)="multiLevelTwo()">Level 1.2
+                      <span class="menu-arrow inside-submenu"></span>
+                    </a>
+                    <ul [ngStyle]="{ display: multiLevel2 ? 'block' : '' }">
+                      <li><a href="javascript:void(0);">Level 2.1</a></li>
+                      <li class="submenu submenu-two submenu-three">
+                        <a href="javascript:void(0);" (click)="multiLevelThree()">Level 2.2
+                          <span class="menu-arrow inside-submenu inside-submenu-two"></span>
+                        </a>
+                        <ul [ngStyle]="{ display: multiLevel3 ? 'block' : '' }">
+                          <li><a href="javascript:void(0);">Level 3.1</a></li>
+                          <li><a href="javascript:void(0);">Level 3.2</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li> -->
+        </ul>
+      </div>
+    </ng-scrollbar>
+  </div>
+</div>
+<!-- /Sidebar -->

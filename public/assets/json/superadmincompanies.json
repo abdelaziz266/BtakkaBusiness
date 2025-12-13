@@ -1,0 +1,106 @@
+{
+    "Image":"company-icon-01.svg",
+    "data":[
+  {
+    "Image":"company-icon-01.svg",
+    "Name": "NovaWave LLC",
+    "Email": "nova@llc.com",
+    "url": "nw.nova.com",
+    "Plan": "Advanced (Monthly)",
+    
+    "Created_Date": "25 Feb 2025, 01:22 PM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-02.svg",
+    "Name": "BlueSky Industries",
+    "Email": "bluesky@ind.com",
+    "url": "bl.blue.com",
+    "Plan": "Enterprise (Monthly)",
+    
+    "Created_Date": "03 Apr 2025, 09:45AM",
+    "Status": "Inactive"
+  },
+  {
+    "Image":"company-icon-03.svg",
+    "Name": "Silver Hawk",
+    "Email": "silver@hawk.com",
+    "url": "sh.silver.com",
+    "Plan": "Advanced (Monthly)",
+    
+    "Created_Date": "14 Apr 2025, 11:11AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-04.svg",
+    "Name": "Summit  Peak",
+    "Email": "sumpK@peak.com",
+    "url": "sp.summer.com",
+    "Plan": "Advanced (Monthly)",
+    
+    "Created_Date": "12 May 2025, 01:09AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-05.svg",
+    "Name": "RiverStone Ventur",
+    "Email": "stone@river.com",
+    "url": "ro.stone.com",
+    "Plan": "Basic (Monthly)",
+    
+    "Created_Date": "28 May 2025, 07:08AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-06.svg",
+    "Name": "Bright Bridge Grp",
+    "Email": "bright@grp.com",
+    "url": "bb.bright.com",
+    "Plan": "Enterprise (Monthly)",
+    
+    "Created_Date": "01 July 2025, 02:15AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-07.svg",
+    "Name": "CoastalStar Co.",
+    "Email": "coastal@star.com",
+    "url": "cs.coastal.com",
+    "Plan": "Advanced (Monthly)",
+    
+    "Created_Date": "20 Jul 2025, 10:25AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-08.svg",
+    "Name": "HarborView",
+    "Email": "harbor@view.com",
+    "url": "hv.harbor.com",
+    "Plan": "Advanced (Monthly)",
+    
+    "Created_Date": "16 Sep 2025, 02:10 PM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-09.svg",
+    "Name": "Golden Gate Ltd",
+    "Email": "golden@gate.com",
+    "url": "ggt.golden.com",
+    "Plan": "Enterprise (Monthly)",
+    
+    "Created_Date": "10 Oct 2025, 10:15AM",
+    "Status": "Active"
+  },
+  {
+    "Image":"company-icon-10.svg",
+    "Name": "Redwood Inc",
+    "Email": "wood@inc.com",
+    "url": "ri.redwood.com",
+    "Plan": "Basic (Monthly)",
+    
+    "Created_Date": "01 Nov 2025, 01:32 PM",
+    "Status": "Active"
+  }
+],
+"totalData":10
+}

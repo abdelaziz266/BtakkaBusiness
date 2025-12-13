@@ -1,0 +1,71 @@
+@use '../../../../assets/scss/variables' as *;
+
+// متغيرات
+$spinner-size: 80px;
+$border-width: 8px;
+$overlay-bg: rgba(0, 0, 0, 0.12); // أخفّ وتظليل طفيف
+$z-index: 9999;
+$rotation-duration: 1s;
+$clip-duration: 2s;
+
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: $overlay-bg;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: $z-index;
+
+  /* تحسين المظهر: السماح بنقرة لإغلاق إن احتجت، وتأثير ضبابي خفيف */
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.loader {
+  width: $spinner-size;
+  height: $spinner-size;
+  border-radius: 50%;
+  position: relative;
+  animation: rotate $rotation-duration linear infinite;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+
+  &::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0px;
+    border-radius: 50%;
+    border: $border-width solid $primary;
+    animation: prixClipFix $clip-duration linear infinite;
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes prixClipFix {
+  0% {
+    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+  }
+  25% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+  }
+  50% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
+  }
+  75% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  }
+  100% {
+    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
+  }
+}
