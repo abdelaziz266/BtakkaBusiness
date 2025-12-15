@@ -40,7 +40,7 @@ export const routes: Routes = [
             canActivate: [AuthGuard]
           },
           {
-            path: 'ContractRequest', // 👈 كده URL هيبقى /co
+            path: 'ContractRequest/:planId',
             loadComponent: () => import('./features/super-admin/ContractRequest/get-contract-request/get-contract-request.component').then(m => m.GetContractRequestComponent),
             canActivate: [AuthGuard]
           },

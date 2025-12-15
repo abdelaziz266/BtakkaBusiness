@@ -456,15 +456,6 @@ export class DataService {
           subRoutes: [],
         },
         {
-          menuValue: 'Contract Request',
-          icon: 'file-text',
-          hasSubRoute: false,
-          showSubRoute: false,
-          route: routes.ContractRequest,
-          base: 'ContractRequest',
-          subRoutes: [],
-        },
-        {
           menuValue: 'Planes',
           icon: 'package',
           hasSubRoute: false,

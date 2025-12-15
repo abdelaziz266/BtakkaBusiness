@@ -43,6 +43,11 @@
         <!-- Card Actions -->
         <div class="card-actions">
           <button class="btn btn-sm btn-primary" 
+                  [routerLink]="[routes.ContractRequest, card.id]"
+                  title="View Contract Requests">
+            <i class="ti ti-file-text me-1"></i>Requests
+          </button>
+          <!-- <button class="btn btn-sm btn-primary" 
                   data-bs-toggle="offcanvas" 
                   data-bs-target="#offcanvas_edit"
                   (click)="openEditModal(card.id)">
@@ -51,7 +56,7 @@
           <button class="btn btn-sm btn-danger" 
                   (click)="deleteCard(card.id)">
             <i class="ti ti-trash me-1"></i>Delete
-          </button>
+          </button> -->
         </div>
 
         <!-- Order Badge -->

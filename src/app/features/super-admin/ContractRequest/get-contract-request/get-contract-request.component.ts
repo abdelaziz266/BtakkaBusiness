@@ -7,16 +7,11 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { PaginationService } from '../../../../core/services/pagination.service';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
-
-export interface IGetContractRequest {
-  id: number;
-  applicantName: string;
-  phone: string;
-  date: Date;
-  followedUp: boolean;
-}
+import { ContractRequetService } from '../../../../core/services/contract-requet.service';
+import { SharedService } from '../../../../core/services/shared.service';
+import { IGetContractRequest, IGetContractRequestParams } from '../../../../core/models/contractRequest.dto';
 
 @Component({
   selector: 'app-get-contract-request',
@@ -36,104 +31,132 @@ export interface IGetContractRequest {
   styleUrl: './get-contract-request.component.scss'
 })
 export class GetContractRequestComponent implements OnInit {
-    routes = routes;
+  routes = routes;
   
-  getContractRequests: IGetContractRequest[] = [];
-  filteredRequests: IGetContractRequest[] = [];
+  contractRequests: IGetContractRequest[] = [];
   visibleRequests: IGetContractRequest[] = [];
-
+  
+  planId: string = '';
   fromDate: Date | undefined;
   toDate: Date | undefined;
-  statusFilter: 'all' | 'followed' | 'not-followed' = 'all';
-  readonly pageSize = 10;
+  statusFilter: 'all' | 'read' | 'unread' = 'all';
+  pageNumber: number = 1;
+  pageSize: number = 15;
+  totalPages: number = 0;
+  isLoading: boolean = false;
 
-  constructor(private pagination: PaginationService) {}
+  constructor(
+    private contractService: ContractRequetService,
+    private pagination: PaginationService,
+    private route: ActivatedRoute,
+    private sharedService: SharedService
+  ) {}
 
   ngOnInit(): void {
-    this.generateFakeData(25);
-    this.applyFilters();
-
+    // Get planId from route params
+    this.planId = this.route.snapshot.paramMap.get('planId') || '';
+    
+    // Subscribe to pagination changes
     this.pagination.tablePageSize.subscribe(({ skip, limit }) => {
-      this.visibleRequests = this.filteredRequests.slice(skip, limit);
+      this.pageNumber = Math.floor(skip / limit) + 1;
+      this.loadContractRequests();
     });
+
+    // Load initial data
+    this.loadContractRequests();
   }
 
-  private generateFakeData(count: number): void {
-    const names = ['Ahmed', 'Sara', 'Omar', 'Laila', 'Hassan', 'Nadia', 'Youssef', 'Mona', 'Khaled', 'Rana'];
-
-    const today = new Date();
-    this.getContractRequests = Array.from({ length: count }, (_, idx) => {
-      const name = names[idx % names.length] + ' ' + (idx + 1);
-      const phone = `010${String(Math.floor(10000000 + Math.random() * 89999999))}`;
-      const date = new Date(today.getTime() - idx * 24 * 60 * 60 * 1000);
-      const followedUp = idx % 3 === 0; // some done, some pending
-      return {
-        id: idx + 1,
-        applicantName: name,
-        phone: phone,
-        date,
-        followedUp,
-      } as IGetContractRequest;
-    });
-  }
-
-  applyFilters(): void {
-    const from = this.fromDate ? new Date(this.fromDate) : null;
-    const to = this.toDate ? new Date(this.toDate) : null;
-
-    this.filteredRequests = this.getContractRequests.filter((req) => {
-      const afterFrom = from ? req.date >= from : true;
-      const beforeTo = to ? req.date <= to : true;
-      const statusOk =
-        this.statusFilter === 'all'
-          ? true
-          : this.statusFilter === 'followed'
-          ? req.followedUp
-          : !req.followedUp;
-      return afterFrom && beforeTo && statusOk;
-    });
-
-    const serials = Array.from({ length: this.filteredRequests.length }, (_, i) => i + 1);
-    this.pagination.calculatePageSize.next({
-      totalData: this.filteredRequests.length,
+  loadContractRequests(): void {
+    this.isLoading = true;
+    const params: IGetContractRequestParams = {
+      lang: 'en',
+      planId: this.planId,
+      fromDate: this.fromDate ? this.formatDate(this.fromDate) : undefined,
+      toDate: this.toDate ? this.formatDate(this.toDate) : undefined,
+      pageNumber: this.pageNumber,
       pageSize: this.pageSize,
-      tableData: this.filteredRequests,
-      serialNumberArray: serials,
-      tableDataCopy: [...this.filteredRequests],
-    });
+    };
 
-    // reset to first page on filter change
-    this.pagination.tablePageSize.next({ skip: 0, limit: this.pageSize, pageSize: this.pageSize });
-    this.visibleRequests = this.filteredRequests.slice(0, this.pageSize);
+    this.contractService.getContractRequests(params).subscribe({
+      next: (response) => {
+        let data = response.data.data || [];
+        
+        // Apply status filter
+        if (this.statusFilter !== 'all') {
+          data = data.filter(req => {
+            if (this.statusFilter === 'read') return req.isRead === true;
+            if (this.statusFilter === 'unread') return req.isRead === false;
+            return true;
+          });
+        }
+        
+        this.contractRequests = data;
+        this.totalPages = response.data.pagesCount || 0;
+        this.visibleRequests = this.contractRequests;
+
+        // Update pagination
+        const serials = Array.from({ length: this.contractRequests.length }, (_, i) => 
+          (this.pageNumber - 1) * this.pageSize + i + 1
+        );
+        
+        this.pagination.calculatePageSize.next({
+          totalData: this.totalPages * this.pageSize,
+          pageSize: this.pageSize,
+          tableData: this.contractRequests,
+          serialNumberArray: serials,
+          tableDataCopy: [...this.contractRequests],
+        });
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.sharedService.handleError(err);
+        this.isLoading = false;
+      }
+    });
   }
 
   onFromDateChange(): void {
     if (!this.fromDate) {
       this.toDate = undefined;
     }
+    this.pageNumber = 1; // Reset to first page
+    this.loadContractRequests();
   }
 
   onToDateChange(): void {
     if (this.fromDate && this.toDate && this.toDate < this.fromDate) {
       this.toDate = undefined;
     }
+    this.pageNumber = 1; // Reset to first page
+    this.loadContractRequests();
   }
 
-  markFollowed(request: IGetContractRequest): void {
-    request.followedUp = true;
-    this.applyFilters();
+  applyStatusFilter(): void {
+    this.pageNumber = 1; // Reset to first page
+    this.loadContractRequests();
+  }
+
+  markAsRead(request: IGetContractRequest): void {
+    request.isRead = true;
+    this.sharedService.handleResponse({ status: 200, message: 'Marked as read', data: null, errors: [], errorCode: null });
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   exportPDF(): void {
-    const headers = ['Applicant Name', 'Phone', 'Date', 'Status'];
-    const rows = this.filteredRequests.map((req) => [
-      req.applicantName,
-      req.phone,
-      new Date(req.date).toLocaleDateString(),
-      req.followedUp ? 'Followed' : 'Not Followed'
+    const headers = ['Name', 'Mobile', 'Request Date', 'Status', 'Plan Name', 'Plan Value'];
+    const rows = this.contractRequests.map((req) => [
+      req.name,
+      req.mobile,
+      new Date(req.requestDate).toLocaleDateString(),
+      req.isRead ? 'Read' : 'Unread',
+      req.planName,
+      req.planValue
     ]);
 
-    // Create table HTML
     let tableHtml = '<table border="1" cellpadding="8" cellspacing="0">';
     tableHtml += '<thead><tr style="background-color: #D71716; color: white;">';
     headers.forEach((h) => {
@@ -149,7 +172,6 @@ export class GetContractRequestComponent implements OnInit {
     });
     tableHtml += '</tbody></table>';
 
-    // Open print dialog with formatted table
     const printWindow = window.open('', '', 'height=600,width=800');
     printWindow?.document.write('<html><head><title>Contract Requests</title>');
     printWindow?.document.write('<style>');
@@ -168,21 +190,21 @@ export class GetContractRequestComponent implements OnInit {
   }
 
   exportExcel(): void {
-    const headers = ['Applicant Name', 'Phone', 'Date', 'Status'];
-    const rows = this.filteredRequests.map((req) => [
-      req.applicantName,
-      req.phone,
-      new Date(req.date).toLocaleDateString(),
-      req.followedUp ? 'Followed' : 'Not Followed'
+    const headers = ['Name', 'Mobile', 'Request Date', 'Status', 'Plan Name', 'Plan Value'];
+    const rows = this.contractRequests.map((req) => [
+      req.name,
+      req.mobile,
+      new Date(req.requestDate).toLocaleDateString(),
+      req.isRead ? 'Read' : 'Unread',
+      req.planName,
+      req.planValue
     ]);
 
-    // Build CSV with proper formatting
     let csvContent = headers.map((h) => `"${h}"`).join(',') + '\n';
     rows.forEach((row) => {
       csvContent += row.map((cell) => `"${cell}"`).join(',') + '\n';
     });
 
-    // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -202,11 +224,11 @@ export class GetContractRequestComponent implements OnInit {
     const field = sort.active;
     const direction = sort.direction === 'asc' ? 'asc' : 'desc';
 
-    this.filteredRequests.sort((a, b) => {
+    this.contractRequests.sort((a, b) => {
       let aValue: any = a[field as keyof IGetContractRequest];
       let bValue: any = b[field as keyof IGetContractRequest];
 
-      if (field === 'date') {
+      if (field === 'requestDate') {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       } else if (typeof aValue === 'string') {
@@ -223,17 +245,14 @@ export class GetContractRequestComponent implements OnInit {
       return 0;
     });
 
-    // Recalculate pagination with sorted data
-    const serials = Array.from({ length: this.filteredRequests.length }, (_, i) => i + 1);
+    this.visibleRequests = this.contractRequests;
+    const serials = Array.from({ length: this.contractRequests.length }, (_, i) => i + 1);
     this.pagination.calculatePageSize.next({
-      totalData: this.filteredRequests.length,
+      totalData: this.contractRequests.length,
       pageSize: this.pageSize,
-      tableData: this.filteredRequests,
+      tableData: this.contractRequests,
       serialNumberArray: serials,
-      tableDataCopy: [...this.filteredRequests],
+      tableDataCopy: [...this.contractRequests],
     });
-
-    this.pagination.tablePageSize.next({ skip: 0, limit: this.pageSize, pageSize: this.pageSize });
-    this.visibleRequests = this.filteredRequests.slice(0, this.pageSize);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { RouterLink } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
@@ -212,11 +212,12 @@ export class PlanesComponent implements OnInit, AfterViewInit {
   }
 
   drop(event: CdkDragDrop<ICard[]>): void {
-    debugger
-    if ((event.previousIndex !== event.currentIndex) && (event.previousIndex > event.currentIndex)) {
-      const card = this.cards[event.previousIndex];
-      this.cards.splice(event.previousIndex, 1);
-      this.cards.splice(event.currentIndex, 0, card);
+    if (event.previousIndex !== event.currentIndex) {
+      const previousIndex = event.previousIndex;
+      const currentIndex = event.currentIndex;
+      
+      // Use CDK's moveItemInArray for proper reordering
+      moveItemInArray(this.cards, previousIndex, currentIndex);
       this.updateCardOrder();
     }
   }
@@ -226,4 +227,5 @@ export class PlanesComponent implements OnInit, AfterViewInit {
       card.order = index + 1;
     });
   }
+
 }
