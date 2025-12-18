@@ -43,7 +43,7 @@
         <!-- Card Actions -->
         <div class="card-actions">
           <button class="btn btn-sm btn-primary" 
-                  [routerLink]="[routes.ContractRequest, card.id]"
+                  (click)="navigateToContractRequest(card.id)"
                   title="View Contract Requests">
             <i class="ti ti-file-text me-1"></i>Requests
           </button>

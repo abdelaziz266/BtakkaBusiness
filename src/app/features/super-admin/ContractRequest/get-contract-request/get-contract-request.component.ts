@@ -7,7 +7,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { PaginationService } from '../../../../core/services/pagination.service';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
 import { ContractRequetService } from '../../../../core/services/contract-requet.service';
 import { SharedService } from '../../../../core/services/shared.service';
@@ -48,13 +48,13 @@ export class GetContractRequestComponent implements OnInit {
   constructor(
     private contractService: ContractRequetService,
     private pagination: PaginationService,
-    private route: ActivatedRoute,
+    private router: Router,
     private sharedService: SharedService
   ) {}
 
   ngOnInit(): void {
-    // Get planId from route params
-    this.planId = this.route.snapshot.paramMap.get('planId') || '';
+    // Get planId from navigation state
+    this.planId = history.state?.planId || '';
     
     // Subscribe to pagination changes
     this.pagination.tablePageSize.subscribe(({ skip, limit }) => {

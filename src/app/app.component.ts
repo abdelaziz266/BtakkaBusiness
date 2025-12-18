@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { NavigationStart, Router, Event as RouterEvent, RouterOutlet } from '@angular/router';
+import { NavigationStart, Router, Event as RouterEvent, RouterOutlet, NavigationEnd } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ export class AppComponent {
   title = '';
   public base = '';
   public page = '';
-  constructor(private router: Router) {
+  constructor(private router: Router, private titleService: Title) {
     this.router.events.subscribe((event: RouterEvent) => {
       if (event instanceof NavigationStart) {
         const URL = event.url.split('/');
@@ -37,7 +38,15 @@ export class AppComponent {
       ){
         this.page = this.base
       }
-      // if (event instanceof NavigationEnd){}
+      
+      // Update page title on navigation end
+      if (event instanceof NavigationEnd) {
+        // Check if page looks like a GUID or ID parameter (contains mostly hex chars and spaces from replaced dashes)
+        const isGuidOrId = /^[0-9a-f\s-]{20,}$/i.test(this.page) || /^[0-9]+$/.test(this.page) || this.page === '';
+        const pageName = isGuidOrId ? this.base : (this.page || this.base || 'Home');
+        const formattedName = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+        this.titleService.setTitle(`Business - ${formattedName}`);
+      }
     });
   }
 }

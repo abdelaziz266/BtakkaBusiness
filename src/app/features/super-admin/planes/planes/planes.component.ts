@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
@@ -43,7 +43,8 @@ export class PlanesComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private sharedService: SharedService,
-    private plansService: PlansService
+    private plansService: PlansService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -226,6 +227,10 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     this.cards.forEach((card, index) => {
       card.order = index + 1;
     });
+  }
+
+  navigateToContractRequest(planId: number): void {
+    this.router.navigate([routes.ContractRequest], { state: { planId: planId } });
   }
 
 }
