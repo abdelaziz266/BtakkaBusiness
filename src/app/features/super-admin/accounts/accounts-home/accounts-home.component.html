@@ -46,27 +46,27 @@
             <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvas_add"><i class="ti ti-square-rounded-plus-filled me-1"></i>Add New Account</a>
         </div>
-        <div class="card-body">
-            <!-- Report List -->
-            <div class="table-responsive custom-table">
-                <!-- أضفت (matSortChange) -->
-                <table matSort class="table table-nowrap dataTable">
-                    <thead class="table-light">
-                        <tr>
+        <div class="card-body d-flex flex-column">
+            
+            <!-- No Data State -->
+            <div *ngIf="accounts.length === 0" class="text-center py-5">
+                <i class="ti ti-database-off fs-1 text-muted"></i>
+                <p class="mt-2 text-muted">No accounts found</p>
+            </div>
 
-                            <th mat-sort-header="name">Account Name</th>
-                            <th mat-sort-header="companyCode">Account Code</th>
-                            <th mat-sort-header="userName">User Name</th>
-                            <th mat-sort-header="phoneNumber">Phone Number</th>
-                            <th mat-sort-header="action">Action</th>
+            <!-- Table -->
+            <div class="table-responsive table-container" *ngIf="accounts.length > 0">
+                <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
+                    <thead>
+                        <tr>
+                            <th mat-sort-header="accountName">Account Name</th>
+                            <th mat-sort-header="accountCode">Account Code</th>
+                            <th mat-sort-header="accountType">Account Type</th>
+                            <th mat-sort-header="closingType">Closing Type</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- تحقق إذا فيه بيانات -->
-                        <tr *ngIf="!(accounts.length > 0)">
-                            <td class="text-center" colspan="12">{{emptyTable}}</td>
-                        </tr>
-
                         <tr *ngFor="let data of accounts">
                             <td>{{data.accountName}}</td>
                             <td>{{data.accountCode}}</td>
@@ -96,11 +96,18 @@
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
             </div>
-            <app-custom-pagination />
-            <!-- /Contact List -->
+            
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <app-custom-pagination 
+                    [pagesCount]="pagesCount"
+                    [pageNumber]="pageNumber"
+                    [rowCount]="rowCount"
+                    (pageChange)="onPageChange($event)">
+                </app-custom-pagination>
+            </div>
 
         </div>
     </div>
@@ -125,10 +132,97 @@
             <div class="card-body">
                 <form [formGroup]="accountForm" (ngSubmit)="submitForm()">
                     <div class="row">
+                        <!-- Account Code -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="accountCode"
+                                placeholder="Enter account code">
+                            <div *ngIf="accountForm.get('accountCode')?.invalid && accountForm.get('accountCode')?.touched"
+                                class="text-danger small mt-1">
+                                Account code is required
+                            </div>
+                        </div>
+
+                        <!-- Account Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="accountName"
+                                placeholder="Enter account name">
+                            <div *ngIf="accountForm.get('accountName')?.invalid && accountForm.get('accountName')?.touched"
+                                class="text-danger small mt-1">
+                                Account name is required
+                            </div>
+                        </div>
+
+                        <!-- Level -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" formControlName="level" placeholder="Enter level"
+                                min="1" (keypress)="onlyNumbers($event)">
+                            <div *ngIf="accountForm.get('level')?.invalid && accountForm.get('level')?.touched"
+                                class="text-danger small mt-1">
+                                Level is required and must be greater than 0
+                            </div>
+                        </div>
+
+                        <!-- Closing Type -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Closing Type <span class="text-danger">*</span></label>
+                                <p-select [options]="[
+                                    { label: 'Balance Sheet', value: 'BalanceSheet' },
+                                    { label: 'Income Statement', value: 'IncomeStatement' }
+                                ]" formControlName="closingType" optionLabel="label" optionValue="value"
+                                    placeholder="Select" [filter]="true" class="form-control">
+                                </p-select>
+                                <span
+                                    *ngIf="accountForm.get('closingType')?.touched && accountForm.get('closingType')?.hasError('required')"
+                                    class="text-danger small">
+                                    Closing type is required
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Account Type -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Account Type <span class="text-danger">*</span></label>
+                                <p-select [options]="[
+                                    { label: 'Main Account', value: 'Main' },
+                                    { label: 'Sub Account', value: 'Sub' }
+                                ]" formControlName="accountType" optionLabel="label" optionValue="value"
+                                    placeholder="Select" [filter]="true" class="form-control">
+                                </p-select>
+                                <span
+                                    *ngIf="accountForm.get('accountType')?.touched && accountForm.get('accountType')?.hasError('required')"
+                                    class="text-danger small">
+                                    Account type is required
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Parent Account -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Parent Account</label>
+                                <p-select [options]="accounts" formControlName="parentId" optionLabel="accountName"
+                                    optionValue="id" placeholder="Select" [filter]="true" class="form-control">
+                                </p-select>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" formControlName="notes" rows="3"
+                                placeholder="Enter notes (optional)"></textarea>
+                        </div>
 
                         <!-- Submit -->
                         <div class="col-12 text-end">
-                            <button class="btn btn-primary" type="submit">Save Account</button>
+                            <button class="btn btn-light me-2" type="button" data-bs-dismiss="offcanvas">Cancel</button>
+                            <button class="btn btn-primary" type="submit" >
+                                Save Account
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -177,9 +271,90 @@
             <div class="card-body">
                 <form [formGroup]="accountForm" (ngSubmit)="submitForm()">
                     <div class="row">
+                        <!-- Account Code -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="accountCode"
+                                placeholder="Enter account code">
+                            <div *ngIf="accountForm.get('accountCode')?.invalid && accountForm.get('accountCode')?.touched"
+                                class="text-danger small mt-1">
+                                Account code is required
+                            </div>
+                        </div>
+
+                        <!-- Account Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" formControlName="accountName"
+                                placeholder="Enter account name">
+                            <div *ngIf="accountForm.get('accountName')?.invalid && accountForm.get('accountName')?.touched"
+                                class="text-danger small mt-1">
+                                Account name is required
+                            </div>
+                        </div>
+
+                        <!-- Level -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" formControlName="level" placeholder="Enter level"
+                                min="1" (keypress)="onlyNumbers($event)">
+                            <div *ngIf="accountForm.get('level')?.invalid && accountForm.get('level')?.touched"
+                                class="text-danger small mt-1">
+                                Level is required and must be greater than 0
+                            </div>
+                        </div>
+
+                        <!-- Closing Type -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Closing Type <span class="text-danger">*</span></label>
+                            <p-select [options]="[
+                                    { label: 'Balance Sheet', value: 'BalanceSheet' },
+                                    { label: 'Income Statement', value: 'IncomeStatement' }
+                                ]" formControlName="closingType" optionLabel="label" optionValue="value"
+                                placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                            <div *ngIf="accountForm.get('closingType')?.invalid && accountForm.get('closingType')?.touched"
+                                class="text-danger small mt-1">
+                                Closing type is required
+                            </div>
+                        </div>
+
+                        <!-- Account Type -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Type <span class="text-danger">*</span></label>
+                            <p-select [options]="[
+                                    { label: 'Main Account', value: 'Main' },
+                                    { label: 'Sub Account', value: 'Sub' }
+                                ]" formControlName="accountType" optionLabel="label" optionValue="value"
+                                placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                            <div *ngIf="accountForm.get('accountType')?.invalid && accountForm.get('accountType')?.touched"
+                                class="text-danger small mt-1">
+                                Account type is required
+                            </div>
+                        </div>
+
+                        <!-- Parent Account -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Parent Account</label>
+                            <p-select [options]="filteredAccounts" formControlName="parentId" optionLabel="accountName"
+                                optionValue="id" placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" formControlName="notes" rows="3"
+                                placeholder="Enter notes (optional)"></textarea>
+                        </div>
+
                         <!-- Submit -->
                         <div class="col-12 text-end">
-                            <button class="btn btn-primary" type="submit">Update Account</button>
+                            <button class="btn btn-light me-2" type="button" data-bs-dismiss="offcanvas">Cancel</button>
+                            <button class="btn btn-primary" type="submit" [disabled]="accountForm.invalid">
+                                Update Account
+                            </button>
                         </div>
                     </div>
                 </form>

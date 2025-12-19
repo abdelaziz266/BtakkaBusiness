@@ -5,13 +5,13 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CommonModule } from '@angular/common';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { RouterLink } from '@angular/router';
-import { MatSortModule } from '@angular/material/sort';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { CollapseHeaderComponent } from '../../../common/collapse-header/collapse-header.component';
-import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
+import { CustomPaginationComponent, PageChangeEvent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
-import { IAddAccount, IGetAccount } from '../../../../core/models/account.dto';
+import { IGetAccount, IAddAccount } from '../../../../core/models/account.dto';
 import { AccountService } from '../../../../core/services/account.service';
 @Component({
   selector: 'app-accounts-home',
@@ -26,6 +26,7 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
 
   routes = routes;
   accounts: IGetAccount[] = [];
+  filteredAccounts: IGetAccount[] = [];
   account: IGetAccount = {
     id: 0,
     accountCode: '',
@@ -35,7 +36,7 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
     accountType: '',
     notes: '',
     parentCode: '',
-    parentName : '',
+    parentName: '',
     parentId: 0
   };
   accountForm!: FormGroup;
@@ -43,6 +44,12 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
   selectedAccountId: number | null = null;
   isEditMode: boolean = false;
   selectedAccountForEdit: number | null = null;
+
+  // Pagination
+  rowCount = 10;
+  pageNumber = 1;
+  pagesCount = 0;
+
   constructor(
     private accountService: AccountService,
     private fb: FormBuilder,
@@ -55,11 +62,11 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
     this.accountForm = this.fb.group({
       accountCode: ['', Validators.required],
       accountName: ['', Validators.required],
-      level: [0, [Validators.required, Validators.min(0)]],
+      level: [1, [Validators.required, Validators.min(1)]],
       closingType: ['BalanceSheet', Validators.required],
       accountType: ['Main', Validators.required],
       notes: [''],
-      parentId: [0, [Validators.required, Validators.min(0)]]
+      parentId: [null]
     });
   }
 
@@ -82,24 +89,37 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
   resetForm(): void {
     this.isEditMode = false;
     this.selectedAccountForEdit = null;
+    this.filteredAccounts = [];
     this.accountForm.reset({
       accountCode: '',
       accountName: '',
-      level: 0,
+      level: 1,
       closingType: 'BalanceSheet',
       accountType: 'Main',
       notes: '',
-      parentId: 0
+      parentId: null
     });
+    this.accountForm.markAsUntouched();
+    this.accountForm.markAsPristine();
+  }
+
+  onPageChange(event: PageChangeEvent): void {
+    this.pageNumber = event.pageNumber;
+    this.rowCount = event.rowCount;
+    this.GetAccount();
   }
 
   private GetAccount(): void {
-    this.accountService.GetAccount().subscribe({
+    this.accountService.GetAccount(this.pageNumber, this.rowCount).subscribe({
       next: (res: IApiResponseWithList<IGetAccount>) => {
         this.accounts = res.data.data;
+        this.pagesCount = res.data.pagesCount || 0;
         if (this.accounts.length === 0) this.emptyTable = 'No Data Available';
       },
-      error: () => { this.emptyTable = 'No Data Available'; }
+      error: (err) => { 
+        this.emptyTable = 'No Data Available';
+        this.sharedService.handleError(err);
+      }
     });
   }
   private GetAccountById(id: number): void {
@@ -110,7 +130,7 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
           this.fillFormForEdit(res.data);
         }
       },
-      error: () => { 
+      error: () => {
         this.sharedService.handleResponse({ status: 500, message: 'Failed to load account data', data: null, errors: [], errorCode: null });
       }
     });
@@ -124,7 +144,7 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
       closingType: account.closingType,
       accountType: account.accountType,
       notes: account.notes,
-      parentId: account.parentId || 0
+      parentId: account.parentId || null
     });
   }
 
@@ -146,18 +166,18 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
   createAccount(): void {
     const values = this.accountForm.value;
 
-    const accountData : IAddAccount = {
+    const accountData: IAddAccount = {
       accountCode: values.accountCode ?? '',
       accountName: values.accountName ?? '',
-      level: values.level ?? 0,
+      level: values.level ?? 1,
       closingType: values.closingType ?? 'BalanceSheet',
       accountType: values.accountType ?? 'Main',
       notes: values.notes ?? '',
-      parentId: values.parentId ?? 0
+      parentId: values.parentId ?? null
     };
 
     this.accountService.createAccount(accountData).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.status === 200) {
           const offcanvas = document.getElementById('offcanvas_add');
           if (offcanvas) {
@@ -165,11 +185,19 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
           }
         }
         this.sharedService.handleResponse(res);
-        if (res.status === 200)
+        if (res.status === 200) {
           this.GetAccount();
+          this.resetForm();
+        }
       },
       error: (err) => {
-        this.sharedService.handleResponse({ status: 500, message: 'Failed to create account.', data: null, errors: [], errorCode: null });
+        this.sharedService.handleResponse({
+          status: 500,
+          message: 'Failed to create account.',
+          data: null,
+          errors: [],
+          errorCode: null
+        });
       }
     });
   }
@@ -177,14 +205,14 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
   editAccount(): void {
     const values = this.accountForm.value;
 
-    const accountData = {
+    const accountData: IAddAccount = {
       accountCode: values.accountCode ?? '',
       accountName: values.accountName ?? '',
-      level: values.level ?? 0,
+      level: values.level ?? 1,
       closingType: values.closingType ?? 'BalanceSheet',
       accountType: values.accountType ?? 'Main',
       notes: values.notes ?? '',
-      parentId: values.parentId ?? 0
+      parentId: values.parentId ?? null
     };
 
     this.accountService.update(Number(this.selectedAccountForEdit), accountData).subscribe({
@@ -215,6 +243,8 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
   openEditModal(accountId: number): void {
     this.isEditMode = true;
     this.selectedAccountForEdit = accountId;
+    // فلترة الـ accounts لإزالة الـ account الحالي من قائمة الـ parent
+    this.filteredAccounts = this.accounts.filter(acc => acc.id !== accountId);
     this.GetAccountById(accountId);
   }
 
@@ -222,37 +252,36 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
     if (accountId == null) return;
     this.accountService.deleteAccount(accountId).subscribe({
       next: (res) => {
-        this.GetAccount(); // تحديث القائمة بعد الحذف
+        this.GetAccount();
       },
       error: (err) => {
-        this.GetAccount(); // تحديث القائمة حتى لو حدث خطأ
+        this.GetAccount();
       }
     });
   }
 
-  // simple client-side sort (kept)
-  // sortData(sort: Sort) {
-  //   const data = this.accounts.slice();
-  //   if (!sort.active || sort.direction === '') {
-  //     this.accounts = data;
-  //     return;
-  //   }
-  //   this.accounts = data.sort((a, b) => {
-  //     const isAsc = sort.direction === 'asc';
-  //     switch (sort.active) {
-  //       case 'name':
-  //         return compare(a.name, b.name, isAsc);
-  //       case 'code':
-  //         return compare(a.code, b.code, isAsc);
-  //       case 'userName':
-  //         return compare(a.userName, b.userName, isAsc);
-  //       case 'phoneNumber':
-  //         return compare(a.phoneNumber, b.phoneNumber, isAsc);
-  //       default:
-  //         return 0;
-  //     }
-  //   });
-  // }
+  sortData(sort: any) {
+    const data = this.accounts.slice();
+    if (!sort.active || sort.direction === '') {
+      this.accounts = data;
+      return;
+    }
+    this.accounts = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'name':
+          return compare(a.accountName, b.accountName, isAsc);
+        case 'companyCode':
+          return compare(a.accountCode, b.accountCode, isAsc);
+        case 'userName':
+          return compare(a.accountType, b.accountType, isAsc);
+        case 'phoneNumber':
+          return compare(a.closingType, b.closingType, isAsc);
+        default:
+          return 0;
+      }
+    });
+  }
 
   onlyNumbers(event: KeyboardEvent): void {
     const allowed = /[0-9]/;
