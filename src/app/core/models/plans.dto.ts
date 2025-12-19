@@ -11,3 +11,8 @@ export interface IAddPlansDTO {
   value: number;
   description: string;
 }
+
+export interface IGetPlansSelectListDTO {
+  id: number;
+  title: string;
+}

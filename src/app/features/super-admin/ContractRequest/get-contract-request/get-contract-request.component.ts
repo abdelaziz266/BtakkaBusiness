@@ -11,6 +11,9 @@ import { routes } from '../../../../shared/routes/routes';
 import { ContractRequetService } from '../../../../core/services/contract-requet.service';
 import { SharedService } from '../../../../core/services/shared.service';
 import { IGetContractRequest, IGetContractRequestParams } from '../../../../core/models/contractRequest.dto';
+import { IGetPlansDTO, IGetPlansSelectListDTO } from '../../../../core/models/plans.dto';
+import { IApiResponse } from '../../../../core/models/shared.dto';
+import { PlansService } from '../../../../core/services/plans.service';
 
 @Component({
   selector: 'app-get-contract-request',
@@ -30,15 +33,20 @@ import { IGetContractRequest, IGetContractRequestParams } from '../../../../core
   styleUrl: './get-contract-request.component.scss'
 })
 export class GetContractRequestComponent implements OnInit {
+    statusOptions = [
+      { label: 'All', value: 'all' },
+      { label: 'Read', value: 'read' },
+      { label: 'Unread', value: 'unread' }
+    ];
   routes = routes;
-  
+
   data: IGetContractRequest[] = [];
-  
+
   planId: string = '';
   fromDate: Date | undefined;
   toDate: Date | undefined;
   statusFilter: 'all' | 'read' | 'unread' = 'all';
-  
+
   // Pagination
   rowCount = 10;
   pageNumber = 1;
@@ -47,16 +55,23 @@ export class GetContractRequestComponent implements OnInit {
   // Track previous date values to avoid unnecessary API calls
   private prevFromDate: Date | undefined;
   private prevToDate: Date | undefined;
-
+  //plans list
+  plans: IGetPlansSelectListDTO[] = [];
+  isPlansFilter: boolean = false;
   constructor(
     private contractService: ContractRequetService,
-    private router: Router,
-    private sharedService: SharedService
-  ) {}
+    private sharedService: SharedService,
+    private plansService: PlansService,
+
+  ) { }
 
   ngOnInit(): void {
     // Get planId from navigation state
     this.planId = history.state?.planId || '';
+    if(this.planId == ''){
+      this.isPlansFilter = true;
+      this.loadPlans();
+    }
     this.loadContractRequests();
   }
 
@@ -69,7 +84,7 @@ export class GetContractRequestComponent implements OnInit {
       pageNumber: this.pageNumber,
       pageSize: this.rowCount,
     };
-
+debugger
     this.contractService.getContractRequests(params).subscribe({
       next: (response) => {
         if (response.status === 200 && response.data) {
@@ -93,7 +108,7 @@ export class GetContractRequestComponent implements OnInit {
     // Skip if date hasn't actually changed
     if (this.fromDate === this.prevFromDate) return;
     this.prevFromDate = this.fromDate;
-    
+
     if (!this.fromDate) {
       this.toDate = undefined;
       this.prevToDate = undefined;
@@ -106,7 +121,7 @@ export class GetContractRequestComponent implements OnInit {
     // Skip if date hasn't actually changed
     if (this.toDate === this.prevToDate) return;
     this.prevToDate = this.toDate;
-    
+
     if (this.fromDate && this.toDate && this.toDate < this.fromDate) {
       this.toDate = undefined;
       this.prevToDate = undefined;
@@ -227,6 +242,24 @@ export class GetContractRequestComponent implements OnInit {
         return direction === 'asc' ? 1 : -1;
       }
       return 0;
+    });
+  }
+  private loadPlans(): void {
+    this.plansService.getPlans().subscribe({
+      next: (response: IApiResponse<IGetPlansDTO[]>) => {
+        if (response.data) {
+          // Map API response to ICard with fake order if not present
+          this.plans = response.data.map((plan: IGetPlansSelectListDTO, index: number) => ({
+            id: plan.id,
+            title: plan.title
+          }));
+        }
+        debugger
+      },
+      error: (error) => {
+        console.error('Failed to load plans', error);
+        // Fallback to fake data if API fails
+      }
     });
   }
 }

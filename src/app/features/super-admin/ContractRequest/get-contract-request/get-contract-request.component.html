@@ -15,24 +15,26 @@
     <div class="card mb-3">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-6 col-md-4">
+                <div class="col-6" [ngClass]="isPlansFilter ? 'col-md-3' : 'col-md-4'">
                     <label class="form-label">From Date</label>
                     <input type="text" class="form-control" bsDatepicker [(ngModel)]="fromDate" name="fromDate"
                         (bsValueChange)="onFromDateChange()" placeholder="Select From Date">
                 </div>
-                <div class="col-6 col-md-4">
+                <div class="col-6" [ngClass]="isPlansFilter ? 'col-md-3' : 'col-md-4'">
                     <label class="form-label">To Date</label>
                     <input type="text" class="form-control" bsDatepicker [(ngModel)]="toDate" name="toDate"
                         (bsValueChange)="onToDateChange()" [disabled]="!fromDate" [bsConfig]="{ minDate: fromDate }"
                         placeholder="Select To Date">
                 </div>
-                <div class="col-md-4">
+                <div [ngClass]="isPlansFilter ? 'col-6 col-md-3' : 'col-md-4'">
                     <label class="form-label">Read Status</label>
-                    <select class="form-select" [(ngModel)]="statusFilter" name="statusFilter" (change)="applyStatusFilter()">
-                        <option value="all">All</option>
-                        <option value="read">Read</option>
-                        <option value="unread">Unread</option>
-                    </select>
+                    <p-select [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value" placeholder="All" [showClear]="true" (onChange)="applyStatusFilter()" class="form-control"></p-select>
+                </div>
+                <div class="col-6 col-md-3" *ngIf="isPlansFilter">
+                    <label class="form-label">Plan</label>
+                    <p-select [options]="plans" [(ngModel)]="planId" optionLabel="title"
+                        optionValue="id" placeholder="All Plans" [filter]="true" [showClear]="true"
+                        (onChange)="loadContractRequests()" class="form-control"></p-select>
                 </div>
             </div>
         </div>
