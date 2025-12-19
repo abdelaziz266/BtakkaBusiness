@@ -6,6 +6,10 @@ import { routes } from '../../../shared/routes/routes';
 // import { SidebarService } from '../../../shared/sidebar/sidebar.service';
 // import { SettingsService } from '../../../shared/settings/settings.service';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
 import { MainMenu, Menu } from '../../../core/models/sidebar.model';
 import { DataService } from '../../../core/services/data.service';
 import { CommonService } from '../../../core/services/common.service';
@@ -18,7 +22,7 @@ import { SettingsService } from '../../../core/services/settings.service';
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss',
     standalone:true,
-    imports: [RouterLink]
+    imports: [RouterLink, FormsModule, BsDatepickerModule, SelectModule, CommonModule]
 })
 export class HeaderComponent {
  
@@ -40,6 +44,17 @@ export class HeaderComponent {
   multiLevel1 = false;
   multiLevel2 = false;
   multiLevel3 = false;
+  // Section select options
+  sectionOptions = [
+    { label: 'Btakka Home', value: 'btakka' },
+    { label: 'Operation', value: 'operation' },
+    { label: 'Erp', value: 'erp' }
+  ];
+  sectionValue: string | null = null;
+
+  // Date picker fields
+  fromDate: Date | undefined;
+  toDate: Date | undefined;
   constructor(
     private data: DataService,
     private common: CommonService,
