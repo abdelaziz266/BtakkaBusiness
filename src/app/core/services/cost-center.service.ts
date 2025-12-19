@@ -11,22 +11,26 @@ export class CostCenterService {
   private apiUrl = environment.apiUrl + 'CostCenter/';
 
   constructor(private http: HttpClient) { }
+  
   GetCostCenterById(id: number): Observable<any> {
-    
     return this.http.get(`${this.apiUrl}get/${id}`);
   }
 
-  GetCostCenter(): Observable<any> {
-    
-    return this.http.get(`${this.apiUrl}get`);
+  GetCostCenter(pageNumber: number = 1, pageSize: number = 10): Observable<any> {
+    return this.http.get(`${this.apiUrl}get`, {
+      params: {
+        pageNumber: pageNumber.toString(),
+        pageSize: pageSize.toString()
+      }
+    });
   }
 
-  // new: create account endpoint (expects FormData)
-  createCostCenter(costCenterData : IAddCostCenter): Observable<any> {
+  createCostCenter(costCenterData: IAddCostCenter): Observable<any> {
     return this.http.post(`${this.apiUrl}create-cost-center`, costCenterData);
   }
-update(id: number,costCenterData : IAddCostCenter): Observable<any> {
-    return this.http.post(`${this.apiUrl}update/${id}`, costCenterData);
+
+  update(id: number, costCenterData: IAddCostCenter): Observable<any> {
+    return this.http.put(`${this.apiUrl}update/${id}`, costCenterData);
   }
 
   deleteCostCenter(costCenterId: number): Observable<any> {

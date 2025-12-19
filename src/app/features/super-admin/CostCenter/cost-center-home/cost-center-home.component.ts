@@ -1,25 +1,24 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CollapseHeaderComponent } from '../../../common/collapse-header/collapse-header.component';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { MatSortModule } from '@angular/material/sort';
-import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
-import { RouterLink } from '@angular/router';
-import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { RouterLink } from '@angular/router';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { CollapseHeaderComponent } from '../../../common/collapse-header/collapse-header.component';
+import { CustomPaginationComponent, PageChangeEvent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { routes } from '../../../../shared/routes/routes';
+import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
-import { IAddCostCenter, IGetCostCenter } from '../../../../core/models/costCenter.dto';
+import { IGetCostCenter, IAddCostCenter } from '../../../../core/models/costCenter.dto';
 import { CostCenterService } from '../../../../core/services/cost-center.service';
-import { IApiResponse } from '../../../../core/models/shared.dto';
 
 @Component({
   selector: 'app-cost-center-home',
-standalone: true,
-  imports: [CollapseHeaderComponent, ReactiveFormsModule, SelectModule, MultiSelectModule,
-     FormsModule, CommonModule, BsDatepickerModule, RouterLink, CustomPaginationComponent, MatSortModule],
-    templateUrl: './cost-center-home.component.html',
+  standalone: true,
+  imports: [CollapseHeaderComponent, ReactiveFormsModule, SelectModule, MultiSelectModule, FormsModule, CommonModule, BsDatepickerModule, RouterLink, CustomPaginationComponent, MatSortModule],
+  templateUrl: './cost-center-home.component.html',
   styleUrl: './cost-center-home.component.scss'
 })
 export class CostCenterHomeComponent implements OnInit, AfterViewInit {
@@ -28,64 +27,44 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
 
   routes = routes;
   costCenters: IGetCostCenter[] = [];
+  filteredCostCenters: IGetCostCenter[] = [];
   costCenter: IGetCostCenter = {
     id: 0,
-    level: 0,
-    accountType: 0,
-    notes: '',
-    parentCode: '',
-    parentName : '',
-    code: '',
-    name: ''
-  };
-  addCostCenter: IAddCostCenter = {
     code: '',
     name: '',
     level: 0,
-    costCenterType: '',
+    accountType: '',
     notes: '',
-    parentId: 0
+    parentCode: '',
+    parentName: ''
   };
   costCenterForm!: FormGroup;
   emptyTable = '';
   selectedCostCenterId: number | null = null;
   isEditMode: boolean = false;
   selectedCostCenterForEdit: number | null = null;
-  levels: any[] = [
-    { id: 1, name: 'Level1' },
-    { id: 2, name: 'Level2' },
-    { id: 3, name: 'Level3' },
-    { id: 4, name: 'Level4' },
-    { id: 5, name: 'Level5' }
-  ];
-  // account types for select
-  accountTypes: any[] = [
-    { id: 'Main', name: 'Main' },
-    { id: 'Sub', name: 'Sub' }
-  ];
 
-  // parent list (populated from fetched cost centers)
-  parentOptions: any[] = [
-    { id: 1, name: 'Sample Parent 1' },
-    { id: 2, name: 'Sample Parent 2' } ,
-    { id: 3, name: 'Sample Parent 3' }
-  ];
+  // Pagination
+  rowCount = 10;
+  pageNumber = 1;
+  pagesCount = 0;
+
   constructor(
     private costCenterService: CostCenterService,
     private fb: FormBuilder,
-    private sharedService: SharedService,
+    private sharedService: SharedService
   ) { }
 
   ngOnInit(): void {
     this.GetCostCenter();
-    // CostCenter form matching API structure
+    // Cost Center form matching API structure
     this.costCenterForm = this.fb.group({
       code: ['', Validators.required],
       name: ['', Validators.required],
-      level: [0, [Validators.required, Validators.min(0)]],
+      level: [1, [Validators.required, Validators.min(1)]],
       accountType: ['Main', Validators.required],
       notes: [''],
-      parentId: [0, [Validators.required, Validators.min(0)]]
+      parentId: [0]
     });
   }
 
@@ -105,9 +84,41 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  GetCostCenter(): void {
+    this.costCenterService.GetCostCenter(this.pageNumber, this.rowCount).subscribe({
+      next: (res: IApiResponseWithList<IGetCostCenter>) => {
+        if (res.status === 200) {
+          this.costCenters = res.data.data;
+          this.filteredCostCenters = this.costCenters;
+          this.pagesCount = res.data.pagesCount || 0;
+        }
+      },
+      error: (err) => {
+        this.sharedService.handleResponse({
+          status: 500,
+          message: 'Failed to fetch cost centers.',
+          data: null,
+          errors: [],
+          errorCode: null
+        });
+      }
+    });
+  }
+
+  GetCostCenterById(id: number): void {
+    this.costCenterService.GetCostCenterById(id).subscribe({
+      next: (res: IApiResponse<IGetCostCenter>) => {
+        if (res.status === 200 && res.data) {
+          this.fillFormForEdit(res.data);
+        }
+      },
+      error: () => {
+        this.sharedService.handleResponse({ status: 500, message: 'Failed to load cost center data', data: null, errors: [], errorCode: null });
+      }
+    });
+  }
+
   resetForm(): void {
-    this.isEditMode = false;
-    this.selectedCostCenterForEdit = null;
     this.costCenterForm.reset({
       code: '',
       name: '',
@@ -116,46 +127,22 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
       notes: '',
       parentId: 0
     });
+    this.isEditMode = false;
+    this.selectedCostCenterForEdit = null;
+    this.filteredCostCenters = this.costCenters;
   }
 
-  private GetCostCenter(): void {
-    this.costCenterService.GetCostCenter().subscribe({
-      next: (res: IApiResponse<IGetCostCenter[]>) => {
-        debugger
-        this.costCenters = res.data || [];
-        
-
-        if (this.costCenters.length === 0) this.emptyTable = 'No Data Available';
-      },
-      error: () => { this.emptyTable = 'No Data Available'; }
-    });
-  }
-  private GetCostCenterById(id: number): void {
-    this.costCenterService.GetCostCenterById(id).subscribe({
-      next: (res: IApiResponse<IAddCostCenter>) => {
-        debugger
-        if (res.data) {
-          this.addCostCenter = res.data;
-          this.fillFormForEdit(res.data);
-        }
-      },
-      error: () => { 
-        this.sharedService.handleResponse({ status: 500, message: 'Failed to load costCenter data', data: null, errors: [], errorCode: null });
-      }
-    });
-  }
-
-  fillFormForEdit(costCenter: IAddCostCenter): void {
+  fillFormForEdit(costCenter: IGetCostCenter): void {
     this.costCenterForm.patchValue({
       code: costCenter.code,
       name: costCenter.name,
       level: costCenter.level,
+      accountType: costCenter.accountType,
       notes: costCenter.notes,
       parentId: costCenter.parentId || 0
     });
   }
 
-  // prepare FormData with required API keys and submit to backend
   submitForm(): void {
     if (this.costCenterForm.invalid) {
       this.costCenterForm.markAllAsTouched();
@@ -173,16 +160,17 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
   createCostCenter(): void {
     const values = this.costCenterForm.value;
 
-    const costCenterData : IAddCostCenter = {
+    const costCenterData: IAddCostCenter = {
       code: values.code ?? '',
       name: values.name ?? '',
       level: values.level ?? 0,
+      accountType: values.accountType ?? 'Main',
       notes: values.notes ?? '',
-      costCenterType: values.costCenterType ?? '',
       parentId: values.parentId ?? 0
     };
+
     this.costCenterService.createCostCenter(costCenterData).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.status === 200) {
           const offcanvas = document.getElementById('offcanvas_add');
           if (offcanvas) {
@@ -190,11 +178,19 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
           }
         }
         this.sharedService.handleResponse(res);
-        if (res.status === 200)
+        if (res.status === 200) {
           this.GetCostCenter();
+          this.resetForm();
+        }
       },
       error: (err) => {
-        this.sharedService.handleResponse({ status: 500, message: 'Failed to create costCenter.', data: null, errors: [], errorCode: null });
+        this.sharedService.handleResponse({
+          status: 500,
+          message: 'Failed to create cost center.',
+          data: null,
+          errors: [],
+          errorCode: null
+        });
       }
     });
   }
@@ -202,15 +198,15 @@ export class CostCenterHomeComponent implements OnInit, AfterViewInit {
   editCostCenter(): void {
     const values = this.costCenterForm.value;
 
-    const costCenterData : IAddCostCenter= {
+    const costCenterData: IAddCostCenter = {
       code: values.code ?? '',
       name: values.name ?? '',
       level: values.level ?? 0,
-      costCenterType: values.costCenterType ?? '',
+      accountType: values.accountType ?? 'Main',
       notes: values.notes ?? '',
       parentId: values.parentId ?? 0
     };
-debugger
+
     this.costCenterService.update(Number(this.selectedCostCenterForEdit), costCenterData).subscribe({
       next: (res) => {
         if (res.status === 200) {
@@ -226,12 +222,17 @@ debugger
         }
       },
       error: (err) => {
-        this.sharedService.handleResponse({ status: 500, message: 'Failed to update costCenter.', data: null, errors: [], errorCode: null });
+        this.sharedService.handleResponse({
+          status: 500,
+          message: 'Failed to update cost center.',
+          data: null,
+          errors: [],
+          errorCode: null
+        });
       }
     });
   }
 
-  // عند فتح المودال، احفظ رقم الشركة هنا
   openDeleteModal(costCenterId: number): void {
     this.selectedCostCenterId = costCenterId;
   }
@@ -239,47 +240,50 @@ debugger
   openEditModal(costCenterId: number): void {
     this.isEditMode = true;
     this.selectedCostCenterForEdit = costCenterId;
-    debugger
+    this.filteredCostCenters = this.costCenters.filter(cc => cc.id !== costCenterId);
     this.GetCostCenterById(costCenterId);
   }
 
   onDeleteCostCenter(costCenterId: number | null): void {
     if (costCenterId == null) return;
-    debugger
     this.costCenterService.deleteCostCenter(costCenterId).subscribe({
       next: (res) => {
-        debugger
-        this.GetCostCenter(); // تحديث القائمة بعد الحذف
+        this.GetCostCenter();
       },
       error: (err) => {
-        this.GetCostCenter(); // تحديث القائمة حتى لو حدث خطأ
+        this.GetCostCenter();
       }
     });
   }
 
-  // simple client-side sort (kept)
-  // sortData(sort: Sort) {
-  //   const data = this.costCenters.slice();
-  //   if (!sort.active || sort.direction === '') {
-  //     this.costCenters = data;
-  //     return;
-  //   }
-  //   this.costCenters = data.sort((a, b) => {
-  //     const isAsc = sort.direction === 'asc';
-  //     switch (sort.active) {
-  //       case 'name':
-  //         return compare(a.name, b.name, isAsc);
-  //       case 'code':
-  //         return compare(a.code, b.code, isAsc);
-  //       case 'userName':
-  //         return compare(a.userName, b.userName, isAsc);
-  //       case 'phoneNumber':
-  //         return compare(a.phoneNumber, b.phoneNumber, isAsc);
-  //       default:
-  //         return 0;
-  //     }
-  //   });
-  // }
+  sortData(sort: any) {
+    const data = this.costCenters.slice();
+    if (!sort.active || sort.direction === '') {
+      this.costCenters = data;
+      return;
+    }
+    this.costCenters = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'name':
+          return compare(a.name, b.name, isAsc);
+        case 'code':
+          return compare(a.code, b.code, isAsc);
+        case 'accountType':
+          return compare(a.accountType, b.accountType, isAsc);
+        case 'level':
+          return compare(a.level, b.level, isAsc);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  onPageChange(event: PageChangeEvent): void {
+    this.pageNumber = event.pageNumber;
+    this.rowCount = event.rowCount;
+    this.GetCostCenter();
+  }
 
   onlyNumbers(event: KeyboardEvent): void {
     const allowed = /[0-9]/;

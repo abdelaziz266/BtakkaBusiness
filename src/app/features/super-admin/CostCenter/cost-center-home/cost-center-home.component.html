@@ -3,11 +3,11 @@
     <!-- Page Header -->
     <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
         <div>
-            <h4 class="mb-1">Cost Centers<span class="badge badge-soft-primary ms-2">152</span></h4>
+            <h4 class="mb-1">costCenters<span class="badge badge-soft-primary ms-2">152</span></h4>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="routes.index">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Cost Centers</li>
+                    <li class="breadcrumb-item active" aria-current="page">costCenters</li>
                 </ol>
             </nav>
         </div>
@@ -19,12 +19,12 @@
                     <ul>
                         <li>
                             <a href="javascript:void(0);" class="dropdown-item"><i
-                                    class="ti ti-file-type-pdf me-1"></i>Export as
+                                    class="ti ti-file-accountType-pdf me-1"></i>Export as
                                 PDF</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);" class="dropdown-item"><i
-                                    class="ti ti-file-type-xls me-1"></i>Export as
+                                    class="ti ti-file-accountType-xls me-1"></i>Export as
                                 Excel </a>
                         </li>
                     </ul>
@@ -41,38 +41,37 @@
         <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
             <div class="input-icon input-icon-start position-relative">
                 <span class="input-icon-addon text-dark"><i class="ti ti-search"></i></span>
-                <input type="search" class="form-control" placeholder="Search">
+                <input accountType="search" class="form-control" placeholder="Search">
             </div>
             <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvas_add"><i class="ti ti-square-rounded-plus-filled me-1"></i>Add New Cost
-                Center</a>
+                data-bs-target="#offcanvas_add"><i class="ti ti-square-rounded-plus-filled me-1"></i>Add New Cost Center</a>
         </div>
-        <div class="card-body">
-            <!-- Report List -->
-            <div class="table-responsive custom-table">
-                <!-- أضفت (matSortChange) -->
-                <table matSort class="table table-nowrap dataTable">
-                    <thead class="table-light">
-                        <tr>
+        <div class="card-body d-flex flex-column">
+            
+            <!-- No Data State -->
+            <div *ngIf="costCenters.length === 0" class="text-center py-5">
+                <i class="ti ti-database-off fs-1 text-muted"></i>
+                <p class="mt-2 text-muted">No costCenters found</p>
+            </div>
 
+            <!-- Table -->
+            <div class="table-responsive table-container" *ngIf="costCenters.length > 0">
+                <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
+                    <thead>
+                        <tr>
                             <th mat-sort-header="name">Name</th>
                             <th mat-sort-header="code">Code</th>
-                            <th mat-sort-header="parentName">Parent Name</th>
-                            <th mat-sort-header="parentCode">Parent Code</th>
-                            <th mat-sort-header="action">Action</th>
+                            <th mat-sort-header="accountType">accountType</th>
+                            <th mat-sort-header="level">Level</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- تحقق إذا فيه بيانات -->
-                        <tr *ngIf="!(costCenters.length > 0)">
-                            <td class="text-center" colspan="12">{{emptyTable}}</td>
-                        </tr>
-
                         <tr *ngFor="let data of costCenters">
                             <td>{{data.name}}</td>
                             <td>{{data.code}}</td>
-                            <td>{{data.parentName}}</td>
-                            <td>{{data.parentCode}}</td>
+                            <td>{{data.accountType}}</td>
+                            <td>{{data.level}}</td>
                             <td>
                                 <div class="dropdown table-action">
                                     <a href="#" class="action-icon btn btn-xs shadow btn-icon btn-outline-light "
@@ -97,11 +96,18 @@
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
             </div>
-            <app-custom-pagination />
-            <!-- /Contact List -->
+            
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <app-custom-pagination 
+                    [pagesCount]="pagesCount"
+                    [pageNumber]="pageNumber"
+                    [rowCount]="rowCount"
+                    (pageChange)="onPageChange($event)">
+                </app-custom-pagination>
+            </div>
 
         </div>
     </div>
@@ -111,11 +117,11 @@
 <!-- End Content -->
 
 
-<!-- Start Add CostCenter -->
+<!-- Start Add Cost Center -->
 <div class="offcanvas offcanvas-end offcanvas-large" tabindex="-1" id="offcanvas_add" #offcanvasAdd>
     <div class="offcanvas-header border-bottom">
         <h5 class="fw-semibold">Add New Cost Center</h5>
-        <button type="button"
+        <button accountType="button"
             class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center justify-content-center rounded-circle"
             data-bs-dismiss="offcanvas" aria-label="Close">
             <i class="ti ti-x"></i>
@@ -126,86 +132,81 @@
             <div class="card-body">
                 <form [formGroup]="costCenterForm" (ngSubmit)="submitForm()">
                     <div class="row">
-                        <!--  Cost Center Code -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Code <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="code" />
-                                <span
-                                    *ngIf="costCenterForm.get('code')?.touched && costCenterForm.get('code')?.hasError('required')"
-                                    class="text-danger small">
-                                    Code is required.
-                                </span>
+                        <!-- Code -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input accountType="text" class="form-control" formControlName="code"
+                                placeholder="Enter Code">
+                            <div *ngIf="costCenterForm.get('code')?.invalid && costCenterForm.get('code')?.touched"
+                                class="text-danger small mt-1">
+                                Code is required
                             </div>
                         </div>
-                        <!--  Cost Center Name -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="name" />
-                                <span
-                                    *ngIf="costCenterForm.get('name')?.touched && costCenterForm.get('name')?.hasError('required')"
-                                    class="text-danger small">
-                                    Name is required.
-                                </span>
+
+                        <!-- Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input accountType="text" class="form-control" formControlName="name"
+                                placeholder="Enter Name">
+                            <div *ngIf="costCenterForm.get('name')?.invalid && costCenterForm.get('name')?.touched"
+                                class="text-danger small mt-1">
+                                Name is required
                             </div>
                         </div>
-                        <!-- Company About -->
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Notes <span class="text-danger">*</span></label>
-                                <textarea class="form-control" formControlName="notes"></textarea>
-                                <span
-                                    *ngIf="costCenterForm.get('notes')?.touched && costCenterForm.get('notes')?.hasError('required')"
-                                    class="text-danger small">
-                                    Notes is required.
-                                </span>
+
+                        <!-- Level -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
+                            <input accountType="number" class="form-control" formControlName="level" placeholder="Enter level"
+                                min="1" (keypress)="onlyNumbers($event)">
+                            <div *ngIf="costCenterForm.get('level')?.invalid && costCenterForm.get('level')?.touched"
+                                class="text-danger small mt-1">
+                                Level is required and must be greater than 0
                             </div>
                         </div>
-                        <!--  Cost Center Level -->
+
+                        
+                        <!-- accountType -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Level <span class="text-danger">*</span></label>
-                                <p-select [options]="levels" formControlName="level" optionLabel="name" optionValue="id"
-                                    placeholder="Select" [filter]="true" class="form-control"></p-select>
-                                <span
-                                    *ngIf="costCenterForm.get('level')?.touched && costCenterForm.get('level')?.hasError('required')"
-                                    class="text-danger small">
-                                    Level is required.
-                                </span>
-                            </div>
-                        </div>
-                        <!--  Cost Center accountType -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Account Type <span class="text-danger">*</span></label>
-                                <p-select [options]="accountTypes" formControlName="accountType" optionLabel="name"
-                                    optionValue="id" placeholder="Select" [filter]="true"
-                                    class="form-control"></p-select>
+                                <label class="form-label">accountType <span class="text-danger">*</span></label>
+                                <p-select [options]="[
+                                    { label: 'Main Cost Center', value: 'Main' },
+                                    { label: 'Sub Cost Center', value: 'Sub' }
+                                ]" formControlName="accountType" optionLabel="label" optionValue="value"
+                                    placeholder="Select" [filter]="true" class="form-control">
+                                </p-select>
                                 <span
                                     *ngIf="costCenterForm.get('accountType')?.touched && costCenterForm.get('accountType')?.hasError('required')"
                                     class="text-danger small">
-                                    Account Type is required.
+                                    accountType is required
                                 </span>
                             </div>
                         </div>
-                        <!--  Cost Center accountType -->
+
+                        <!-- Parent Cost Center -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Parent <span class="text-danger">*</span></label>
-                                <p-select [options]="parentOptions" formControlName="parentId" optionLabel="name"
-                                    optionValue="id" placeholder="Select" [filter]="true"
-                                    class="form-control"></p-select>
-                                <span
-                                    *ngIf="costCenterForm.get('parentId')?.touched && costCenterForm.get('parentId')?.hasError('required')"
-                                    class="text-danger small">
-                                    Parent is required.
-                                </span>
+                                <label class="form-label">Parent Cost Center</label>
+                                <p-select [options]="costCenters" formControlName="parentId" optionLabel="name"
+                                    optionValue="id" placeholder="Select" [filter]="true" class="form-control">
+                                </p-select>
                             </div>
                         </div>
+
+                        <!-- Notes -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" formControlName="notes" rows="3"
+                                placeholder="Enter notes (optional)"></textarea>
+                        </div>
+
                         <!-- Submit -->
                         <div class="col-12 text-end">
-                            <button class="btn btn-primary" type="submit">Save Cost Center</button>
+                            <button class="btn btn-light me-2" accountType="button" data-bs-dismiss="offcanvas">Cancel</button>
+                            <button class="btn btn-primary" accountType="submit" >
+                                Save Cost Center
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -213,7 +214,7 @@
         </div>
     </div>
 </div>
-<!-- End Add CostCenter -->
+<!-- End Add Cost Center -->
 <!-- delete modal -->
 <div class="modal fade" id="delete_company">
     <div class="modal-dialog modal-dialog-centered modal-sm rounded-0">
@@ -239,11 +240,11 @@
 </div>
 <!-- delete modal -->
 
-<!-- Start Edit CostCenter -->
+<!-- Start Edit Cost Center -->
 <div class="offcanvas offcanvas-end offcanvas-large" tabindex="-1" id="offcanvas_edit" #offcanvasEdit>
     <div class="offcanvas-header border-bottom">
-        <h5 class="fw-semibold">Edit CostCenter</h5>
-        <button type="button"
+        <h5 class="fw-semibold">Edit Cost Center</h5>
+        <button accountType="button"
             class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center justify-content-center rounded-circle"
             data-bs-dismiss="offcanvas" aria-label="Close">
             <i class="ti ti-x"></i>
@@ -254,86 +255,90 @@
             <div class="card-body">
                 <form [formGroup]="costCenterForm" (ngSubmit)="submitForm()">
                     <div class="row">
-                        <!--  Cost Center Code -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Code <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="code" />
-                                <span
-                                    *ngIf="costCenterForm.get('code')?.touched && costCenterForm.get('code')?.hasError('required')"
-                                    class="text-danger small">
-                                    Code is required.
-                                </span>
+                        <!-- Code -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input accountType="text" class="form-control" formControlName="code"
+                                placeholder="Enter Code">
+                            <div *ngIf="costCenterForm.get('code')?.invalid && costCenterForm.get('code')?.touched"
+                                class="text-danger small mt-1">
+                                Code is required
                             </div>
                         </div>
-                        <!--  Cost Center Name -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="name" />
-                                <span
-                                    *ngIf="costCenterForm.get('name')?.touched && costCenterForm.get('name')?.hasError('required')"
-                                    class="text-danger small">
-                                    Name is required.
-                                </span>
+
+                        <!-- Name -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input accountType="text" class="form-control" formControlName="name"
+                                placeholder="Enter Name">
+                            <div *ngIf="costCenterForm.get('name')?.invalid && costCenterForm.get('name')?.touched"
+                                class="text-danger small mt-1">
+                                Name is required
                             </div>
                         </div>
+
+                        <!-- Level -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
+                            <input accountType="number" class="form-control" formControlName="level" placeholder="Enter level"
+                                min="1" (keypress)="onlyNumbers($event)">
+                            <div *ngIf="costCenterForm.get('level')?.invalid && costCenterForm.get('level')?.touched"
+                                class="text-danger small mt-1">
+                                Level is required and must be greater than 0
+                            </div>
+                        </div>
+
+                        <!-- Level -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Level <span class="text-danger">*</span></label>
+                            <p-select [options]="[
+                                    { label: 'Balance Sheet', value: 'BalanceSheet' },
+                                    { label: 'Income Statement', value: 'IncomeStatement' }
+                                ]" formControlName="level" optionLabel="label" optionValue="value"
+                                placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                            <div *ngIf="costCenterForm.get('level')?.invalid && costCenterForm.get('level')?.touched"
+                                class="text-danger small mt-1">
+                                Level is required
+                            </div>
+                        </div>
+
+                        <!-- accountType -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">accountType <span class="text-danger">*</span></label>
+                            <p-select [options]="[
+                                    { label: 'Main Cost Center', value: 'Main' },
+                                    { label: 'Sub Cost Center', value: 'Sub' }
+                                ]" formControlName="accountType" optionLabel="label" optionValue="value"
+                                placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                            <div *ngIf="costCenterForm.get('accountType')?.invalid && costCenterForm.get('accountType')?.touched"
+                                class="text-danger small mt-1">
+                                accountType is required
+                            </div>
+                        </div>
+
+                        <!-- Parent Cost Center -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Parent Cost Center</label>
+                            <p-select [options]="filteredCostCenters" formControlName="parentId" optionLabel="name"
+                                optionValue="id" placeholder="Select" [filter]="true" class="form-control">
+                            </p-select>
+                        </div>
+
                         <!-- Notes -->
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label">Notes <span class="text-danger">*</span></label>
-                                <textarea class="form-control" formControlName="notes"></textarea>
-                                <span
-                                    *ngIf="costCenterForm.get('notes')?.touched && costCenterForm.get('notes')?.hasError('required')"
-                                    class="text-danger small">
-                                    Notes is required.
-                                </span>
-                            </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" formControlName="notes" rows="3"
+                                placeholder="Enter notes (optional)"></textarea>
                         </div>
-                        <!--  Cost Center Level -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Level <span class="text-danger">*</span></label>
-                                <p-select [options]="levels" formControlName="level" optionLabel="name" optionValue="id"
-                                    placeholder="Select" [filter]="true" class="form-control"></p-select>
-                                <span
-                                    *ngIf="costCenterForm.get('level')?.touched && costCenterForm.get('level')?.hasError('required')"
-                                    class="text-danger small">
-                                    Level is required.
-                                </span>
-                            </div>
-                        </div>
-                        <!--  Account Type -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Account Type <span class="text-danger">*</span></label>
-                                <p-select [options]="accountTypes" formControlName="accountType" optionLabel="name"
-                                    optionValue="id" placeholder="Select" [filter]="true"
-                                    class="form-control"></p-select>
-                                <span
-                                    *ngIf="costCenterForm.get('accountType')?.touched && costCenterForm.get('accountType')?.hasError('required')"
-                                    class="text-danger small">
-                                    Account Type is required.
-                                </span>
-                            </div>
-                        </div>
-                        <!--  Parent -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Parent <span class="text-danger">*</span></label>
-                                <p-select [options]="parentOptions" formControlName="parentId" optionLabel="name"
-                                    optionValue="id" placeholder="Select" [filter]="true"
-                                    class="form-control"></p-select>
-                                <span
-                                    *ngIf="costCenterForm.get('parentId')?.touched && costCenterForm.get('parentId')?.hasError('required')"
-                                    class="text-danger small">
-                                    Parent is required.
-                                </span>
-                            </div>
-                        </div>
+
                         <!-- Submit -->
                         <div class="col-12 text-end">
-                            <button class="btn btn-primary" type="submit">Update CostCenter</button>
+                            <button class="btn btn-light me-2" accountType="button" data-bs-dismiss="offcanvas">Cancel</button>
+                            <button class="btn btn-primary" accountType="submit" [disabled]="costCenterForm.invalid">
+                                Update Cost Center
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -341,4 +346,7 @@
         </div>
     </div>
 </div>
-<!-- End Edit CostCenter -->
+<!-- End Edit Cost Center -->
+
+
+
