@@ -79,16 +79,9 @@ export class GetContractRequestComponent implements OnInit {
 
     this.contractService.getContractRequests(params).subscribe({
       next: (response) => {
-        let data = response.data.data || [];
+        let data = response.data.data ;
         
-        // Apply status filter
-        if (this.statusFilter !== 'all') {
-          data = data.filter(req => {
-            if (this.statusFilter === 'read') return req.isRead === true;
-            if (this.statusFilter === 'unread') return req.isRead === false;
-            return true;
-          });
-        }
+       
         
         this.contractRequests = data;
         this.totalPages = response.data.pagesCount || 0;

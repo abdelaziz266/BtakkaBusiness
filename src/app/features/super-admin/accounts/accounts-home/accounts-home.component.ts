@@ -95,9 +95,8 @@ export class AccountsHomeComponent implements OnInit, AfterViewInit {
 
   private GetAccount(): void {
     this.accountService.GetAccount().subscribe({
-      next: (res: IApiResponseWithList<IGetAccount[]>) => {
-        debugger
-        this.accounts = res.data.data || [];
+      next: (res: IApiResponseWithList<IGetAccount>) => {
+        this.accounts = res.data.data;
         if (this.accounts.length === 0) this.emptyTable = 'No Data Available';
       },
       error: () => { this.emptyTable = 'No Data Available'; }

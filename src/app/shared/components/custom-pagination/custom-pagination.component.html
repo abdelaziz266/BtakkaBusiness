@@ -1,7 +1,7 @@
-<nav *ngIf="totalPages > 1 && tableData.length > 0" class="my-3">
+<nav *ngIf="pagesCount > 1" class="my-3">
   <ul class="pagination pagination-rounded pagination-boxed mb-0 flex-wrap gap-lg-0 gap-md-0 gap-1">
     <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
-      <a class="page-link" href="javascript:void(0);" aria-label="Previous" (click)="getMoreData('previous')">
+      <a class="page-link" href="javascript:void(0);" aria-label="Previous" (click)="previous()">
         <span aria-hidden="true">&laquo;</span>
       </a>
     </li>
@@ -21,32 +21,25 @@
             ? 'hide-page-no'
             : 'show-page-no'
         ">
-        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(item)">{{ item }}</a>
+        <a class="page-link" href="javascript:void(0);" (click)="goToPage(item)">{{ item }}</a>
       </li>
 
       <li class="page-item" *ngIf="i === 0 && pageNumberArray.length > 6 && currentPage > 2" [hidden]="currentPage === 1">
-        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(currentPage - 2)">...</a>
+        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage - 2)">...</a>
       </li>
 
       <li 
         class="page-item"
         *ngIf="i === pageNumberArray.length - 2 && pageNumberArray.length > 6"
-        [hidden]="
-          currentPage >= pageNumberArray[pageNumberArray.length - 2] ||
-          totalData < serialNumberArray[serialNumberArray.length - 1]
-        ">
-        <a class="page-link" href="javascript:void(0);" (click)="moveToPage(currentPage + 2)">...</a>
+        [hidden]="currentPage >= pageNumberArray[pageNumberArray.length - 2]">
+        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage + 2)">...</a>
       </li>
     </ng-container>
 
     <li 
       class="page-item" 
-      [ngClass]="{
-        disabled:
-          currentPage === pageNumberArray[pageNumberArray.length - 1] ||
-          tableData.length === 0
-      }">
-      <a class="page-link" href="javascript:void(0);" aria-label="Next" (click)="getMoreData('next')">
+      [ngClass]="{ disabled: currentPage === pagesCount }">
+      <a class="page-link" href="javascript:void(0);" aria-label="Next" (click)="next()">
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>

@@ -13,7 +13,7 @@ export class ContractRequetService {
 
   constructor(private http: HttpClient) { }
 
-  getContractRequests(params: IGetContractRequestParams): Observable<IApiResponseWithList<IGetContractRequest[]>> {
+  getContractRequests(params: IGetContractRequestParams): Observable<IApiResponseWithList<IGetContractRequest>> {
     let httpParams = new HttpParams();
     httpParams = httpParams.set('lang', params.lang);
     httpParams = httpParams.set('planId', params.planId.toString());
@@ -27,7 +27,7 @@ export class ContractRequetService {
       httpParams = httpParams.set('toDate', params.toDate);
     }
 
-    return this.http.get<IApiResponseWithList<IGetContractRequest[]>>(
+    return this.http.get<IApiResponseWithList<IGetContractRequest>>(
       `${this.apiUrl}/get`,
       { params: httpParams }
     );

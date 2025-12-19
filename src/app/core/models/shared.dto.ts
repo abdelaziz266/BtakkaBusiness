@@ -15,6 +15,6 @@ export interface IApiResponseWithList<T> {
 }
 export interface IListResponse<T> {
   lastPage: boolean,
-    data: T | null,
+    data: T[],
     pagesCount: number
 }

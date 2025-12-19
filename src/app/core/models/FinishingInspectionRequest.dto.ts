@@ -1,10 +1,11 @@
 
 export interface IGetFinishingInspectionRequest {
     id: number;
-    customerName: string;
-    unitTitle: string;
-    unitAddress: string;
-    phoneNumber: string;
-    date: Date;
-    followedUp: boolean;
+    name: string,
+    phone: string,
+    countryCode: string,
+    unitAddress: string,
+    isCommunicated: true,
+    createdOn: string,
+    customerName: string
 }
