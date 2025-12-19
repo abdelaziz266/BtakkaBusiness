@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IGetPlansDTO, IAddPlansDTO } from '../models/plans.dto';
-import { IApiResponse, IApiResponseWithList } from '../models/shared.dto';
+import { IApiResponse } from '../models/shared.dto';
 import { environment } from '../../../environments/environment.development';
 
 @Injectable({
@@ -29,12 +29,12 @@ export class PlansService {
   }
 
   // Update plan
-  updatePlan(id: number, plan: IAddPlansDTO): Observable<IApiResponse<IGetPlansDTO>> {
-    return this.http.put<IApiResponse<IGetPlansDTO>>(`${this.apiUrl}/update/${id}`, plan);
+  updatePlan(id: string, plan: IAddPlansDTO): Observable<IApiResponse<IGetPlansDTO>> {
+    return this.http.put<IApiResponse<IGetPlansDTO>>(`${this.apiUrl}/update?Id=${id}&lang=en`, plan);
   }
 
   // Delete plan
-  deletePlan(id: number): Observable<IApiResponse<any>> {
-    return this.http.delete<IApiResponse<any>>(`${this.apiUrl}/delete/${id}`);
+  deletePlan(id: string): Observable<IApiResponse<any>> {
+    return this.http.delete<IApiResponse<any>>(`${this.apiUrl}/delete?Id=${id}&lang=en`);
   }
 }

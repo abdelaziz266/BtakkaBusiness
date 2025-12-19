@@ -7,7 +7,7 @@ import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
 import { SharedService } from '../../../../core/services/shared.service';
 import { PlansService } from '../../../../core/services/plans.service';
-import { IGetPlansDTO } from '../../../../core/models/plans.dto';
+import { IGetPlansDTO, IAddPlansDTO } from '../../../../core/models/plans.dto';
 
 export interface ICard {
   id: number;
@@ -15,12 +15,6 @@ export interface ICard {
   value: number;
   description: string;
   order: number;
-}
-
-export interface IAddCard {
-  title: string;
-  value: number;
-  description: string;
 }
 
 @Component({
@@ -51,7 +45,7 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     this.loadPlans();
     this.cardForm = this.fb.group({
       title: ['', Validators.required],
-      value: ['', [Validators.required, Validators.min(0)]],
+      value: ['', [Validators.min(0)]],
       description: ['', Validators.required]
     });
   }
@@ -74,7 +68,6 @@ export class PlanesComponent implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Failed to load plans', error);
         // Fallback to fake data if API fails
-        this.generateFakeCards();
       }
     });
   }
@@ -91,32 +84,6 @@ export class PlanesComponent implements OnInit, AfterViewInit {
         this.resetForm();
       });
     }
-  }
-
-  private generateFakeCards(): void {
-    this.cards = [
-      {
-        id: 1,
-        title: 'Basic Plan',
-        value: 9.99,
-        description: 'Essential features for individuals',
-        order: 1
-      },
-      {
-        id: 2,
-        title: 'Professional Plan',
-        value: 29.99,
-        description: 'Advanced features for professionals',
-        order: 2
-      },
-      {
-        id: 3,
-        title: 'Enterprise Plan',
-        value: 99.99,
-        description: 'Full features for large teams',
-        order: 3
-      }
-    ];
   }
 
   resetForm(): void {
@@ -145,9 +112,9 @@ export class PlanesComponent implements OnInit, AfterViewInit {
 
   createCard(): void {
     const values = this.cardForm.value;
-    const newCard: IAddCard = {
+    const newCard: IAddPlansDTO = {
       title: values.title,
-      value: values.value,
+      value: values.value || 0,
       description: values.description,
     };
 
@@ -171,23 +138,26 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     if (!this.selectedCardForEdit) return;
 
     const values = this.cardForm.value;
-    const cardIndex = this.cards.findIndex(c => c.id === this.selectedCardForEdit);
+    const updateData: IAddPlansDTO = {
+      title: values.title,
+      value: values.value || 0,
+      description: values.description
+    };
 
-    if (cardIndex > -1) {
-      this.cards[cardIndex] = {
-        ...this.cards[cardIndex],
-        title: values.title,
-        value: values.value,
-        description: values.description
-      };
-
-      const offcanvas = document.getElementById('offcanvas_edit');
-      if (offcanvas) {
-        (window as any).bootstrap?.Offcanvas.getOrCreateInstance(offcanvas)?.hide();
+    this.plansService.updatePlan(String(this.selectedCardForEdit), updateData).subscribe({
+      next: (response: IApiResponse<IGetPlansDTO>) => {
+        this.loadPlans();
+        const offcanvas = document.getElementById('offcanvas_edit');
+        if (offcanvas) {
+          (window as any).bootstrap?.Offcanvas.getOrCreateInstance(offcanvas)?.hide();
+        }
+        this.sharedService.handleResponse({ status: response.status, message: response.message, data: null, errors: [], errorCode: null });
+        this.resetForm();
+      },
+      error: (error) => {
+        this.sharedService.handleResponse({ status: 500, message: 'Failed to update plan', data: null, errors: [error], errorCode: null });
       }
-      this.sharedService.handleResponse({ status: 200, message: 'Card updated successfully', data: null, errors: [], errorCode: null });
-      this.resetForm();
-    }
+    });
   }
 
   openEditModal(cardId: number): void {
@@ -203,13 +173,29 @@ export class PlanesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  deleteCard(cardId: number): void {
-    const cardIndex = this.cards.findIndex(c => c.id === cardId);
-    if (cardIndex > -1) {
-      this.cards.splice(cardIndex, 1);
-      this.updateCardOrder();
-      this.sharedService.handleResponse({ status: 200, message: 'Card deleted successfully', data: null, errors: [], errorCode: null });
-    }
+  cardToDelete: number | null = null;
+
+  openDeleteModal(cardId: number): void {
+    this.cardToDelete = cardId;
+  }
+
+  confirmDelete(): void {
+    if (!this.cardToDelete) return;
+    
+    this.plansService.deletePlan(String(this.cardToDelete)).subscribe({
+      next: (response: IApiResponse<any>) => {
+        this.loadPlans();
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+          (window as any).bootstrap?.Modal.getOrCreateInstance(modal)?.hide();
+        }
+        this.sharedService.handleResponse({ status: response.status, message: response.message, data: null, errors: [], errorCode: null });
+        this.cardToDelete = null;
+      },
+      error: (error) => {
+        this.sharedService.handleResponse({ status: 500, message: 'Failed to delete plan', data: null, errors: [error], errorCode: null });
+      }
+    });
   }
 
   drop(event: CdkDragDrop<ICard[]>): void {
