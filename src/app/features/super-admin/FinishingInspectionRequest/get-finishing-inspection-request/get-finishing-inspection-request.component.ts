@@ -40,7 +40,7 @@ export class GetFinishingInspectionRequestComponent implements OnInit {
   textSearch: string = '';
   
   // Pagination
-  readonly rowCount = 10;
+  rowCount = 10;
   pageNumber = 1;
   pagesCount = 0;
 
@@ -104,6 +104,7 @@ export class GetFinishingInspectionRequestComponent implements OnInit {
 
   onPageChange(event: PageChangeEvent): void {
     this.pageNumber = event.pageNumber;
+    this.rowCount = event.rowCount;
     this.loadData();
   }
 

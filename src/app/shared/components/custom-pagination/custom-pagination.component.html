@@ -1,47 +1,66 @@
-<nav *ngIf="pagesCount > 1" class="my-3">
-  <ul class="pagination pagination-rounded pagination-boxed mb-0 flex-wrap gap-lg-0 gap-md-0 gap-1">
-    <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
-      <a class="page-link" href="javascript:void(0);" aria-label="Previous" (click)="previous()">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
+<div class="d-flex align-items-center my-3 flex-wrap gap-2">
+  <!-- Row Count Select - Left -->
+  <div class="d-flex align-items-center gap-2" style="flex: 1;">
+    <label class="mb-0 text-nowrap">Rows:</label>
+    <p-select 
+      [options]="rowCountOptions" 
+      [(ngModel)]="rowCountInput" 
+      (onChange)="onRowCountChange()"
+      optionLabel="label" 
+      optionValue="value"
+      placeholder="Select"
+      class="form-control"
+      [style]="{'width': '100px'}"></p-select>
+  </div>
 
-    <ng-container *ngFor="let item of pageNumberArray; let i = index">
-      <li 
-        class="page-item" 
-        [class.active]="item === currentPage"
-        [ngClass]="
-          (pageNumberArray[currentPage - 2] > item &&
-            item !== 1 &&
-            pageNumberArray.length > 6) ||
-          (pageNumberArray[currentPage] < item &&
-            item !== 1 &&
-            pageNumberArray.length > 6 &&
-            pageNumberArray.length !== item)
-            ? 'hide-page-no'
-            : 'show-page-no'
-        ">
-        <a class="page-link" href="javascript:void(0);" (click)="goToPage(item)">{{ item }}</a>
+  <!-- Pagination - Center -->
+  <nav *ngIf="pagesCount > 1">
+    <ul class="pagination pagination-rounded pagination-boxed mb-0 flex-wrap gap-lg-0 gap-md-0 gap-1">
+      <!-- First Page -->
+      <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
+        <a class="page-link" href="javascript:void(0);" aria-label="First" (click)="goToFirst()">
+          <span aria-hidden="true">&laquo;&laquo;</span>
+        </a>
+      </li>
+      
+      <!-- Previous Page -->
+      <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
+        <a class="page-link" href="javascript:void(0);" aria-label="Previous" (click)="previous()">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
       </li>
 
-      <li class="page-item" *ngIf="i === 0 && pageNumberArray.length > 6 && currentPage > 2" [hidden]="currentPage === 1">
-        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage - 2)">...</a>
+      <!-- Page before current -->
+      <li class="page-item" *ngIf="currentPage > 1">
+        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage - 1)">{{ currentPage - 1 }}</a>
       </li>
 
-      <li 
-        class="page-item"
-        *ngIf="i === pageNumberArray.length - 2 && pageNumberArray.length > 6"
-        [hidden]="currentPage >= pageNumberArray[pageNumberArray.length - 2]">
-        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage + 2)">...</a>
+      <!-- Current Page -->
+      <li class="page-item active">
+        <a class="page-link" href="javascript:void(0);">{{ currentPage }}</a>
       </li>
-    </ng-container>
 
-    <li 
-      class="page-item" 
-      [ngClass]="{ disabled: currentPage === pagesCount }">
-      <a class="page-link" href="javascript:void(0);" aria-label="Next" (click)="next()">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+      <!-- Page after current -->
+      <li class="page-item" *ngIf="currentPage < pagesCount">
+        <a class="page-link" href="javascript:void(0);" (click)="goToPage(currentPage + 1)">{{ currentPage + 1 }}</a>
+      </li>
+
+      <!-- Next Page -->
+      <li class="page-item" [ngClass]="{ disabled: currentPage === pagesCount }">
+        <a class="page-link" href="javascript:void(0);" aria-label="Next" (click)="next()">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      
+      <!-- Last Page -->
+      <li class="page-item" [ngClass]="{ disabled: currentPage === pagesCount }">
+        <a class="page-link" href="javascript:void(0);" aria-label="Last" (click)="goToLast()">
+          <span aria-hidden="true">&raquo;&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Empty div for balance - Right -->
+  <div style="flex: 1;"></div>
+</div>

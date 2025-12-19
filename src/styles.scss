@@ -193,6 +193,47 @@ thead {
 
 // data table **
 
+// Reusable table container with fixed height and scroll
+.table-container {
+  height: 400px;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+  
+  .table thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #fff !important;
+    
+    th {
+      background-color: #fff !important;
+    }
+  }
+}
+
+// Pagination container at bottom
+.pagination-container {
+  margin-top: auto;
+  padding-top: 1rem;
+  width: 100%;
+}
+
 @media (min-width: 991.98px) {
   div.main-wrapper.mini-sidebar .sidebar {
     width: 80px;

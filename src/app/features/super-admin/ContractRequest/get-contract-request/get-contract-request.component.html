@@ -2,8 +2,7 @@
     <!-- Page Header -->
     <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
         <div>
-            <h4 class="mb-1">Contract Requests<span class="badge badge-soft-primary ms-2">{{ contractRequests.length
-                    }}</span></h4>
+            <h4 class="mb-1">Contract Requests<span class="badge badge-soft-primary ms-2">{{ data.length }}</span></h4>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item"><a [routerLink]="routes.index">Home</a></li>
@@ -42,41 +41,51 @@
     <div class="card">
         <div class="card-body d-flex flex-column">
             
-                <div class="table-responsive">
-                    <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
-                        <thead>
-                            <tr>
-                                <th mat-sort-header="name">Name</th>
-                                <th mat-sort-header="mobile">Mobile</th>
-                                <th mat-sort-header="requestDate">Request Date</th>
-                                <th mat-sort-header="planName">Plan Name</th>
-                                <th mat-sort-header="planValue">Plan Value</th>
-                                <th mat-sort-header="isRead">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngIf="contractRequests.length === 0">
-                                <td colspan="6" class="text-center text-muted py-4">No contract requests found</td>
-                            </tr>
-                            <tr *ngFor="let req of visibleRequests">
-                                <td>{{ req.name }}</td>
-                                <td>{{ req.mobile }}</td>
-                                <td>{{ req.requestDate | date:'yyyy-MM-dd HH:mm' }}</td>
-                                <td>{{ req.planName }}</td>
-                                <td>{{ req.planValue | currency:'EGP ':'symbol':'1.2-2' }}</td>
-                                <td>
-                                    <button *ngIf="!req.isRead" class="btn btn-sm btn-warning" (click)="markAsRead(req)">
-                                        <i class="ti ti-mail me-1"></i>Mark as Read
-                                    </button>
-                                    <span *ngIf="req.isRead" class="badge bg-success">Read</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            <div *ngIf="contractRequests.length > 0"    
-                class="d-flex justify-content-center mt-3 sticky-pagination">
-                <app-custom-pagination></app-custom-pagination>
+            <!-- No Data State -->
+            <div *ngIf="data.length === 0" class="text-center py-5">
+                <i class="ti ti-database-off fs-1 text-muted"></i>
+                <p class="mt-2 text-muted">No contract requests found</p>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive table-container" *ngIf="data.length > 0">
+                <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
+                    <thead>
+                        <tr>
+                            <th mat-sort-header="name">Name</th>
+                            <th mat-sort-header="mobile">Mobile</th>
+                            <th mat-sort-header="requestDate">Request Date</th>
+                            <th mat-sort-header="planName">Plan Name</th>
+                            <th mat-sort-header="planValue">Plan Value</th>
+                            <th mat-sort-header="isRead">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let req of data">
+                            <td>{{ req.name }}</td>
+                            <td>{{ req.mobile }}</td>
+                            <td>{{ req.requestDate | date:'yyyy-MM-dd HH:mm' }}</td>
+                            <td>{{ req.planName }}</td>
+                            <td>{{ req.planValue | currency:'EGP ':'symbol':'1.2-2' }}</td>
+                            <td>
+                                <button *ngIf="!req.isRead" class="btn btn-sm btn-warning" (click)="markAsRead(req)">
+                                    <i class="ti ti-mail me-1"></i>Mark as Read
+                                </button>
+                                <span *ngIf="req.isRead" class="badge bg-success">Read</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <app-custom-pagination 
+                    [pagesCount]="pagesCount"
+                    [pageNumber]="pageNumber"
+                    [rowCount]="rowCount"
+                    (pageChange)="onPageChange($event)">
+                </app-custom-pagination>
             </div>
         </div>
     </div>

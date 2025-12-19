@@ -53,41 +53,39 @@
             </div>
 
             <!-- Table -->
-            <div class="table-scroll" *ngIf="data.length > 0">
-                <div class="table-responsive">
-                    <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
-                        <thead>
-                            <tr>
-                                <th mat-sort-header="name">Name</th>
-                                <th mat-sort-header="customerName">Customer Name</th>
-                                <th mat-sort-header="unitAddress">Unit Address</th>
-                                <th mat-sort-header="phoneNumber">Phone</th>
-                                <th mat-sort-header="date">Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let req of data">
-                                <td>{{ req.name }}</td>
-                                <td>{{ req.customerName }}</td>
-                                <td>{{ req.unitAddress }}</td>
-                                <td>{{ req.phone }}</td>
-                                <td>{{ req.createdOn | date:'yyyy-MM-dd' }}</td>
-                                <td>
-                                    <button *ngIf="!req.isCommunicated" class="btn btn-sm btn-warning"
-                                        (click)="markFollowed(req)">
-                                        <i class="ti ti-mail me-1"></i>Mark as Read
-                                    </button>
-                                    <span *ngIf="req.isCommunicated" class="badge bg-success">Read</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive table-container" *ngIf="data.length > 0">
+                <table class="table table-striped mb-0" matSort (matSortChange)="sortData($event)">
+                    <thead>
+                        <tr>
+                            <th mat-sort-header="name">Name</th>
+                            <th mat-sort-header="customerName">Customer Name</th>
+                            <th mat-sort-header="unitAddress">Unit Address</th>
+                            <th mat-sort-header="phoneNumber">Phone</th>
+                            <th mat-sort-header="date">Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let req of data">
+                            <td>{{ req.name }}</td>
+                            <td>{{ req.customerName }}</td>
+                            <td>{{ req.unitAddress }}</td>
+                            <td>{{ req.phone }}</td>
+                            <td>{{ req.createdOn | date:'yyyy-MM-dd' }}</td>
+                            <td>
+                                <button *ngIf="!req.isCommunicated" class="btn btn-sm btn-warning"
+                                    (click)="markFollowed(req)">
+                                    <i class="ti ti-mail me-1"></i>Mark as Read
+                                </button>
+                                <span *ngIf="req.isCommunicated" class="badge bg-success">Read</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-3" *ngIf="pagesCount > 1">
+            <div class="pagination-container">
                 <app-custom-pagination [pagesCount]="pagesCount" [pageNumber]="pageNumber" [rowCount]="rowCount"
                     (pageChange)="onPageChange($event)">
                 </app-custom-pagination>

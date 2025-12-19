@@ -1,12 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CommonModule } from '@angular/common';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
-import { CustomPaginationComponent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
+import { CustomPaginationComponent, PageChangeEvent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { PaginationService } from '../../../../core/services/pagination.service';
 import { RouterLink, Router } from '@angular/router';
 import { routes } from '../../../../shared/routes/routes';
 import { ContractRequetService } from '../../../../core/services/contract-requet.service';
@@ -33,21 +32,24 @@ import { IGetContractRequest, IGetContractRequestParams } from '../../../../core
 export class GetContractRequestComponent implements OnInit {
   routes = routes;
   
-  contractRequests: IGetContractRequest[] = [];
-  visibleRequests: IGetContractRequest[] = [];
+  data: IGetContractRequest[] = [];
   
   planId: string = '';
   fromDate: Date | undefined;
   toDate: Date | undefined;
   statusFilter: 'all' | 'read' | 'unread' = 'all';
-  pageNumber: number = 1;
-  pageSize: number = 15;
-  totalPages: number = 0;
-  isLoading: boolean = false;
+  
+  // Pagination
+  rowCount = 10;
+  pageNumber = 1;
+  pagesCount = 0;
+
+  // Track previous date values to avoid unnecessary API calls
+  private prevFromDate: Date | undefined;
+  private prevToDate: Date | undefined;
 
   constructor(
     private contractService: ContractRequetService,
-    private pagination: PaginationService,
     private router: Router,
     private sharedService: SharedService
   ) {}
@@ -55,77 +57,66 @@ export class GetContractRequestComponent implements OnInit {
   ngOnInit(): void {
     // Get planId from navigation state
     this.planId = history.state?.planId || '';
-    
-    // Subscribe to pagination changes
-    this.pagination.tablePageSize.subscribe(({ skip, limit }) => {
-      this.pageNumber = Math.floor(skip / limit) + 1;
-      this.loadContractRequests();
-    });
-
-    // Load initial data
     this.loadContractRequests();
   }
 
   loadContractRequests(): void {
-    this.isLoading = true;
     const params: IGetContractRequestParams = {
       lang: 'en',
       planId: this.planId,
       fromDate: this.fromDate ? this.formatDate(this.fromDate) : undefined,
       toDate: this.toDate ? this.formatDate(this.toDate) : undefined,
       pageNumber: this.pageNumber,
-      pageSize: this.pageSize,
+      pageSize: this.rowCount,
     };
 
     this.contractService.getContractRequests(params).subscribe({
       next: (response) => {
-        let data = response.data.data ;
-        
-       
-        
-        this.contractRequests = data;
-        this.totalPages = response.data.pagesCount || 0;
-        this.visibleRequests = this.contractRequests;
-
-        // Update pagination
-        const serials = Array.from({ length: this.contractRequests.length }, (_, i) => 
-          (this.pageNumber - 1) * this.pageSize + i + 1
-        );
-        
-        this.pagination.calculatePageSize.next({
-          totalData: this.totalPages * this.pageSize,
-          pageSize: this.pageSize,
-          tableData: this.contractRequests,
-          serialNumberArray: serials,
-          tableDataCopy: [...this.contractRequests],
-        });
-
-        this.isLoading = false;
+        if (response.status === 200 && response.data) {
+          this.data = response.data.data;
+          this.pagesCount = response.data.pagesCount || 0;
+        }
       },
       error: (err) => {
         this.sharedService.handleError(err);
-        this.isLoading = false;
       }
     });
   }
 
+  onPageChange(event: PageChangeEvent): void {
+    this.pageNumber = event.pageNumber;
+    this.rowCount = event.rowCount;
+    this.loadContractRequests();
+  }
+
   onFromDateChange(): void {
+    // Skip if date hasn't actually changed
+    if (this.fromDate === this.prevFromDate) return;
+    this.prevFromDate = this.fromDate;
+    
     if (!this.fromDate) {
       this.toDate = undefined;
+      this.prevToDate = undefined;
     }
     this.pageNumber = 1; // Reset to first page
     this.loadContractRequests();
   }
 
   onToDateChange(): void {
+    // Skip if date hasn't actually changed
+    if (this.toDate === this.prevToDate) return;
+    this.prevToDate = this.toDate;
+    
     if (this.fromDate && this.toDate && this.toDate < this.fromDate) {
       this.toDate = undefined;
+      this.prevToDate = undefined;
     }
     this.pageNumber = 1; // Reset to first page
     this.loadContractRequests();
   }
 
   applyStatusFilter(): void {
+    debugger
     this.pageNumber = 1; // Reset to first page
     this.loadContractRequests();
   }
@@ -141,7 +132,7 @@ export class GetContractRequestComponent implements OnInit {
 
   exportPDF(): void {
     const headers = ['Name', 'Mobile', 'Request Date', 'Status', 'Plan Name', 'Plan Value'];
-    const rows = this.contractRequests.map((req) => [
+    const rows = this.data.map((req) => [
       req.name,
       req.mobile,
       new Date(req.requestDate).toLocaleDateString(),
@@ -184,7 +175,7 @@ export class GetContractRequestComponent implements OnInit {
 
   exportExcel(): void {
     const headers = ['Name', 'Mobile', 'Request Date', 'Status', 'Plan Name', 'Plan Value'];
-    const rows = this.contractRequests.map((req) => [
+    const rows = this.data.map((req) => [
       req.name,
       req.mobile,
       new Date(req.requestDate).toLocaleDateString(),
@@ -217,7 +208,7 @@ export class GetContractRequestComponent implements OnInit {
     const field = sort.active;
     const direction = sort.direction === 'asc' ? 'asc' : 'desc';
 
-    this.contractRequests.sort((a, b) => {
+    this.data.sort((a, b) => {
       let aValue: any = a[field as keyof IGetContractRequest];
       let bValue: any = b[field as keyof IGetContractRequest];
 
@@ -236,16 +227,6 @@ export class GetContractRequestComponent implements OnInit {
         return direction === 'asc' ? 1 : -1;
       }
       return 0;
-    });
-
-    this.visibleRequests = this.contractRequests;
-    const serials = Array.from({ length: this.contractRequests.length }, (_, i) => i + 1);
-    this.pagination.calculatePageSize.next({
-      totalData: this.contractRequests.length,
-      pageSize: this.pageSize,
-      tableData: this.contractRequests,
-      serialNumberArray: serials,
-      tableDataCopy: [...this.contractRequests],
     });
   }
 }
