@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { routes } from '../../../shared/routes/routes';
 // import { MainMenu, Menu } from '../../../shared/model/sidebar.model';
 // import { DataService } from '../../../shared/data/data.service';
 // import { CommonService } from '../../../shared/common/common.service';
 // import { SidebarService } from '../../../shared/sidebar/sidebar.service';
 // import { SettingsService } from '../../../shared/settings/settings.service';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { SelectModule } from 'primeng/select';
@@ -15,6 +15,7 @@ import { DataService } from '../../../core/services/data.service';
 import { CommonService } from '../../../core/services/common.service';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { SettingsService } from '../../../core/services/settings.service';
+import { TokenService } from '../../../core/services/token.service';
 
 
 @Component({
@@ -24,7 +25,7 @@ import { SettingsService } from '../../../core/services/settings.service';
     standalone:true,
     imports: [RouterLink, FormsModule, BsDatepickerModule, SelectModule, CommonModule]
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
  
   base = '';
   page = '';
@@ -47,10 +48,10 @@ export class HeaderComponent {
   // Section select options
   sectionOptions = [
     { label: 'Btakka Home', value: 'btakka' },
-    { label: 'Operation', value: 'operation' },
-    { label: 'Erp', value: 'erp' }
+    // { label: 'Operation', value: 'operation' },
+    { label: 'ERP', value: 'erp' }
   ];
-  sectionValue: string | null = null;
+  sectionValue: string | null = localStorage.getItem('selectedSection') || 'btakka';
 
   // Date picker fields
   fromDate: Date | undefined;
@@ -61,6 +62,8 @@ export class HeaderComponent {
     private sidebar: SidebarService,
     public settings: SettingsService,
     private sideBar: SidebarService,
+    private tokenService: TokenService,
+    private router: Router,
   ) {
     this.common.base.subscribe((base: string) => {
       this.base = base;
@@ -83,6 +86,54 @@ export class HeaderComponent {
       this.themeMode = res;
     });
     
+  }
+
+  ngOnInit(): void {
+    // تعيين الـ section الافتراضي
+    if (this.sectionValue) {
+      this.data.setSelectedSection(this.sectionValue);
+    }
+
+    // فك تشفير التوكين والحصول على البيانات
+    const tokenData = this.tokenService.decodeToken();
+    console.log('Token Data:', tokenData);
+
+    // يمكنك الحصول على معلومات محددة
+    const userId = this.tokenService.getTokenData('userId');
+    const userName = this.tokenService.getTokenData('userName');
+    const userRole = this.tokenService.getTokenData('roles');
+    
+    console.log('User ID:', userId);
+    console.log('User Name:', userName);
+    console.log('User Role:', userRole);
+
+    // التحقق من انتهاء صلاحية التوكين
+    if (this.tokenService.isTokenExpired()) {
+      console.warn('Token has expired!');
+      // يمكنك هنا توجيه المستخدم لصفحة تسجيل الدخول
+    }
+  }
+
+  /**
+   * عند تغيير الـ section من الـ dropdown
+   */
+  onSectionChange(): void {
+    if (this.sectionValue) {
+      this.data.setSelectedSection(this.sectionValue);
+      console.log('Selected Section:', this.sectionValue);
+      
+      // التوجيه لأول route في الـ section المختار
+      const sectionRoutes: { [key: string]: string } = {
+        'btakka': 'FinishingInspectionRequest',
+        'erp': 'account',
+        'operation': 'operation' // لو عندك operation route زوده هنا
+      };
+      
+      const targetRoute = sectionRoutes[this.sectionValue];
+      if (targetRoute) {
+        this.router.navigate([targetRoute]);
+      }
+    }
   }
   elem = document.documentElement;
   fullscreen() {

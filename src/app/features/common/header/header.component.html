@@ -33,9 +33,9 @@
         </div>
         <div class="d-flex align-items-center">
 
-            <div class="mx-auto" style="min-width:200px; max-width:320px; width:100%">
+            <div class="mx-5" style="min-width:200px; max-width:320px; width:100%">
                 <p-select [options]="sectionOptions" [(ngModel)]="sectionValue" optionLabel="label" optionValue="value"
-                    placeholder="Select Section" [showClear]="true" class="form-control"></p-select>
+                    placeholder="Select Section" class="form-control" (onChange)="onSectionChange()"></p-select>
             </div>
             <!-- Minimize -->
             <div class="header-item">

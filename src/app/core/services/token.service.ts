@@ -57,4 +57,41 @@ export class TokenService {
     const token = this.getToken();
     return !!token; // موجود = true
   }
+
+  /**
+   * 🔐 فك تشفير JWT Token واستخراج البيانات منه
+   */
+  decodeToken(): any {
+    const token = this.getToken();
+    if (!token) return null;
+debugger
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      console.log('Decoded Token:', decoded);
+      return decoded;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 📋 الحصول على معلومة محددة من التوكين
+   */
+  getTokenData(key: string): any {
+    const decoded = this.decodeToken();
+    return decoded ? decoded[key] : null;
+  }
+
+  /**
+   * ⏰ التحقق من انتهاء صلاحية التوكين
+   */
+  isTokenExpired(): boolean {
+    const decoded = this.decodeToken();
+    if (!decoded || !decoded.exp) return true;
+    
+    const expirationDate = decoded.exp * 1000; // تحويل لـ milliseconds
+    return Date.now() >= expirationDate;
+  }
 }

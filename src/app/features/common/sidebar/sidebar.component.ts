@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NavigationStart, Router, Event as RouterEvent, RouterLink } from '@angular/router';
 import { routes } from '../../../shared/routes/routes';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,7 @@ import { SettingsService } from '../../../core/services/settings.service';
   standalone: true,
   imports: [CommonModule, RouterLink, NgScrollbarModule]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   routes = routes;
   base = '';
   page = '';
@@ -26,15 +26,14 @@ export class SidebarComponent {
 
 
   public side_bar_data: any[] = [];
-  public sidebardata: sidebarDataone[] = [];
-  public menus: menu[] = [];
 
   constructor(
     private sidebar: SidebarService,
     private data: DataService,
     private router: Router,
     private common: CommonService,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private cdr: ChangeDetectorRef
   ) {
     router.events.subscribe((event: RouterEvent) => {
       if (event instanceof NavigationStart) {
@@ -50,7 +49,12 @@ export class SidebarComponent {
       }
     });
     this.getRoutes(this.router);
-    this.side_bar_data = this.data.sidebarData1;
+    
+    // الاستماع لتغيير الـ section
+    this.data.selectedSection$.subscribe(() => {
+      this.updateSidebarData();
+    });
+    
     this.common.base.subscribe((res: string) => {
       this.base = res;
     });
@@ -60,6 +64,34 @@ export class SidebarComponent {
     this.common.page.subscribe((res: string) => {
       this.last = res;
     });
+  }
+
+  ngOnInit(): void {
+    // تحديث الـ sidebar بناءً على الـ section والـ claims
+    this.updateSidebarData();
+
+    // إعداد sessionStorage للـ menu
+    const menuValue = sessionStorage.getItem('menuValue');
+    if (!menuValue) {
+      sessionStorage.setItem('menuValue', 'Dashboard');
+      sessionStorage.setItem('page', 'index');
+    }
+
+    this.expandSubMenusActive();
+    this.sidebar.collapseSubMenu$.subscribe(() => {
+      this.collapseAllSubMenus();
+    });
+  }
+
+  /**
+   * تحديث بيانات الـ sidebar بناءً على الـ section والـ claims
+   */
+  private updateSidebarData(): void {
+    const currentSection = this.data.getSelectedSection();
+    console.log('Current Section in Sidebar:', currentSection);
+    this.side_bar_data = this.data.getFilteredSidebarData();
+    console.log('Filtered Sidebar Data:', this.side_bar_data);
+    this.cdr.markForCheck(); // فقط تعليم للتحديث بدون فرضه
   }
   trackMainTitle(index: number, item: any): any {
     return item?.id ?? index;
@@ -118,10 +150,7 @@ export class SidebarComponent {
   }
   public toggleSidebarmini(): void {
     this.sidebar.switchSideMenuPosition();
-
-
   }
-  currentOpenSecondMenu: MenuItem | null = null;
 
   public expandSubMenus(menu: { menuValue: string; showSubRoute: boolean; }): void {
     sessionStorage.setItem('menuValue', menu.menuValue);
@@ -139,21 +168,6 @@ export class SidebarComponent {
       });
     });
   }
-
-  // expandSubMenus(menu: MenuItem): void {
-  //   sessionStorage.setItem('menuValue', menu.menuValue);
-  //   this.side_bar_data.forEach((mainMenus: MenuItem) => {
-  //     mainMenus.menu.forEach((resMenu: SubMenu) => {
-  //       if (resMenu.menuValue === menu.menuValue) {
-  //         menu.showSubRoute = !menu.showSubRoute;
-  //         this.openMenu;
-  //       } else {
-  //         resMenu.showSubRoute = false;
-  //       }
-  //     });
-  //   });
-
-  // }
 
   openMenuItem: MenuItem | null = null;
   openSubmenuOneItem: SubMenu[] | null = null;
@@ -176,7 +190,7 @@ export class SidebarComponent {
       this.openMenuItem = menu;
     }
   }
-  isOpen = false;
+
   public expandSubMenusActive(): void {
     const activeMenu = sessionStorage.getItem('menuValue');
     const activePage = sessionStorage.getItem('page'); // optional, for submenu match
@@ -217,21 +231,7 @@ export class SidebarComponent {
     this.multiLevel3 = !this.multiLevel3;
     this.multiLevel2 = true;
   }
-  ngOnInit(): void {
-    const menuValue = sessionStorage.getItem('menuValue');
 
-    if (!menuValue) {
-      // Set to the parent menu of Deals Dashboard
-      sessionStorage.setItem('menuValue', 'Dashboard');
-      sessionStorage.setItem('page', 'index'); // Optional: track which submenu is open
-    }
-
-    this.expandSubMenusActive();
-    this.sidebar.collapseSubMenu$.subscribe(() => {
-      this.collapseAllSubMenus();
-    });
-
-  }
   collapseAllSubMenus(): void {
     this.side_bar_data.forEach((mainMenu: sidebarDataone) => {
       mainMenu.menu.forEach((resMenu: menu) => {
