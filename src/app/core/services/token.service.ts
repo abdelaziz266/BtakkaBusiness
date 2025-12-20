@@ -64,7 +64,6 @@ export class TokenService {
   decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;
-debugger
     try {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
