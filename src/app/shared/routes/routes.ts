@@ -279,10 +279,10 @@ export const routes={
 // Accounts
 
   accountsDetails: '/accounts/accounts-details',
-  accountsGrid: '/account',
+  accountsGrid: '/Account',
 // Cost Center
 
-  CostCenter: '/cost-center',
+  CostCenter: '/Cost-Center',
   //FinishingInspectionRequest
   FinishingInspectionRequest:'/FinishingInspectionRequest',
 //ContractRequest

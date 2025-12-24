@@ -67,10 +67,8 @@ export class TokenService {
     try {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
-      console.log('Decoded Token:', decoded);
       return decoded;
     } catch (error) {
-      console.error('Error decoding token:', error);
       return null;
     }
   }

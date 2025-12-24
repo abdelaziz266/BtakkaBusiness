@@ -84,7 +84,7 @@ export class GetContractRequestComponent implements OnInit {
       pageNumber: this.pageNumber,
       pageSize: this.rowCount,
     };
-debugger
+
     this.contractService.getContractRequests(params).subscribe({
       next: (response) => {
         if (response.status === 200 && response.data) {
@@ -131,7 +131,7 @@ debugger
   }
 
   applyStatusFilter(): void {
-    debugger
+    
     this.pageNumber = 1; // Reset to first page
     this.loadContractRequests();
   }
@@ -254,11 +254,9 @@ debugger
             title: plan.title
           }));
         }
-        debugger
+        
       },
       error: (error) => {
-        console.error('Failed to load plans', error);
-        // Fallback to fake data if API fails
       }
     });
   }

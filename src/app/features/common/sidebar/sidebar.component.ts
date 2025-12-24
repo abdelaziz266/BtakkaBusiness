@@ -87,10 +87,7 @@ export class SidebarComponent implements OnInit {
    * تحديث بيانات الـ sidebar بناءً على الـ section والـ claims
    */
   private updateSidebarData(): void {
-    const currentSection = this.data.getSelectedSection();
-    console.log('Current Section in Sidebar:', currentSection);
     this.side_bar_data = this.data.getFilteredSidebarData();
-    console.log('Filtered Sidebar Data:', this.side_bar_data);
     this.cdr.markForCheck(); // فقط تعليم للتحديث بدون فرضه
   }
   trackMainTitle(index: number, item: any): any {

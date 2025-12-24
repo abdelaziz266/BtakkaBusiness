@@ -11,7 +11,6 @@ export class DataService {
   private userClaims: string[] = [];
   
   constructor(
-    private http: HttpClient,
     private tokenService: TokenService
   ) { 
     this.loadUserClaims();
@@ -22,9 +21,8 @@ export class DataService {
    */
   private loadUserClaims(): void {
     const tokenData = this.tokenService.decodeToken();
-    if (tokenData && tokenData.Claims) {
-      this.userClaims = tokenData.Claims;
-      console.log('User Claims:', this.userClaims);
+    if (tokenData && tokenData.claims) {
+      this.userClaims = tokenData.claims;
     }
   }
 
@@ -47,7 +45,7 @@ export class DataService {
 
   // للتحكم في الـ section المختار
   private selectedSectionSubject = new BehaviorSubject<string>(
-    localStorage.getItem('selectedSection') || 'btakka'
+    localStorage.getItem('selectedSection') || 'BtakkaInterface'
   );
   public selectedSection$ = this.selectedSectionSubject.asObservable();
 
@@ -61,7 +59,6 @@ export class DataService {
   public setSelectedSection(section: string): void {
     localStorage.setItem('selectedSection', section);
     this.selectedSectionSubject.next(section);
-    console.log('Section changed to:', section);
   }
 
   /**
@@ -75,7 +72,7 @@ export class DataService {
     
     {
       tittle: 'Btakka Home',
-      section: 'btakka', // الـ section الخاص بهذا القسم
+      section: 'BtakkaInterface', // الـ section الخاص بهذا القسم
       showAsTab: true,
       separateRoute: false,
       menu: [
@@ -113,7 +110,7 @@ export class DataService {
     },
     {
       tittle: 'Btakka ERP',
-      section: 'erp', // الـ section الخاص بهذا القسم
+      section: 'BtakkaErp', // الـ section الخاص بهذا القسم
       showAsTab: true,
       separateRoute: false,
       menu: [
@@ -146,14 +143,11 @@ export class DataService {
    */
   public getFilteredSidebarData(selectedSection?: string): any[] {
     const section = selectedSection || this.getSelectedSection();
-    console.log('Filtering sidebar for section:', section);
-    
     const filtered = this.sidebarData1
       .filter(sidebarSection => {
         // فلتر بناءً على الـ section المختار
         if (!sidebarSection.section) return true;
         const match = sidebarSection.section === section;
-        console.log(`Section "${sidebarSection.tittle}" (${sidebarSection.section}) matches "${section}":`, match);
         return match;
       })
       .map(sidebarSection => {
@@ -171,7 +165,6 @@ export class DataService {
       })
       .filter(sidebarSection => sidebarSection.menu.length > 0); // احذف الأقسام الفارغة
     
-    console.log('Filtered result:', filtered);
     return filtered;
   }
 }

@@ -83,7 +83,7 @@ export class GetFinishingInspectionRequestComponent implements OnInit {
 
     this.finishingInspectionService.getFinishingInspectionRequests(params).subscribe({
       next: (response) => {
-        debugger
+        
         if (response.status === 200 && response.data) {
           this.data = response.data.data;
           this.pagesCount = response.data.pagesCount || 0;
@@ -93,7 +93,6 @@ export class GetFinishingInspectionRequestComponent implements OnInit {
       },
       error: (error) => {
         this.toastr.error('Error loading finishing inspection requests');
-        console.error('Error:', error);
       }
     });
   }

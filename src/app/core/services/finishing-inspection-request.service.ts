@@ -49,7 +49,7 @@ export class FinishingInspectionRequestService {
     }
 
     return this.http.get<IApiResponseWithList<IGetFinishingInspectionRequest>>(
-      `${this.apiUrl}/GetFinishingInspectionRequest`,
+      `${this.apiUrl}/get`,
       { params: httpParams }
     );
   }

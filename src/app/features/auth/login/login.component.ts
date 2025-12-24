@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
     return this.loginForm.get('password')!;
   }
   onSubmit() {
-    debugger
+    
   if (this.loginForm.invalid) {
     this.loginForm.markAllAsTouched();
     return;
@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
   this.authService.login(this.userName.value!, this.password.value!).subscribe({
     next: (res: IApiResponse<ILoginResponse>) => {
       if (res.data?.token) {
-        debugger;
+        
         this.tokenService.saveToken(res.data.token);
 
         // ✅ بعد حفظ التوكن يروح على صفحة الشركات
@@ -65,7 +65,7 @@ export class LoginComponent implements OnInit {
       this.loading = false;
     },
     error: (err) => {
-      debugger;
+      
       this.loading = false;
     },
     complete: () => (this.loading = false),

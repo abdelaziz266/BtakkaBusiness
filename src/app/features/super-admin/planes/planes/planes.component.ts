@@ -63,11 +63,9 @@ export class PlanesComponent implements OnInit, AfterViewInit {
             order: plan.order || index + 1  // Use order from API or generate fake one
           }));
         }
-        debugger
+        
       },
       error: (error) => {
-        console.error('Failed to load plans', error);
-        // Fallback to fake data if API fails
       }
     });
   }

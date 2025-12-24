@@ -26,7 +26,8 @@ import { TokenService } from '../../../core/services/token.service';
     imports: [RouterLink, FormsModule, BsDatepickerModule, SelectModule, CommonModule]
 })
 export class HeaderComponent implements OnInit {
- 
+   userCategory: string[] = [];
+
   base = '';
   page = '';
   last = '';
@@ -51,7 +52,7 @@ export class HeaderComponent implements OnInit {
     // { label: 'Operation', value: 'operation' },
     { label: 'ERP', value: 'erp' }
   ];
-  sectionValue: string | null = localStorage.getItem('selectedSection') || 'btakka';
+  sectionValue: string | null = localStorage.getItem('selectedSection') || 'BtakkaInterface';
 
   // Date picker fields
   fromDate: Date | undefined;
@@ -90,43 +91,43 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     // تعيين الـ section الافتراضي
-    if (this.sectionValue) {
+    
+    this.loadUserCategory();
+  }
+private loadUserCategory(): void {
+    const tokenData = this.tokenService.decodeToken();
+    if (tokenData && tokenData.category) {
+      this.userCategory = tokenData.category;
+      
+      // Mapping للـ labels بناءً على الـ category value
+      const categoryLabels: { [key: string]: string } = {
+        'BtakkaInterface': 'Btakka Home',
+        'BtakkaErp': 'ERP',
+        'BtakkaOperation': 'Operation'
+      };
+      
+      // ملء sectionOptions من userCategory
+      this.sectionOptions = this.userCategory.map(category => ({
+        label: categoryLabels[category] || category,
+        value: category
+      }));
+      if (this.sectionValue) {
       this.data.setSelectedSection(this.sectionValue);
     }
-
-    // فك تشفير التوكين والحصول على البيانات
-    const tokenData = this.tokenService.decodeToken();
-    console.log('Token Data:', tokenData);
-
-    // يمكنك الحصول على معلومات محددة
-    const userId = this.tokenService.getTokenData('userId');
-    const userName = this.tokenService.getTokenData('userName');
-    const userRole = this.tokenService.getTokenData('roles');
-    
-    console.log('User ID:', userId);
-    console.log('User Name:', userName);
-    console.log('User Role:', userRole);
-
-    // التحقق من انتهاء صلاحية التوكين
-    if (this.tokenService.isTokenExpired()) {
-      console.warn('Token has expired!');
-      // يمكنك هنا توجيه المستخدم لصفحة تسجيل الدخول
     }
   }
-
   /**
    * عند تغيير الـ section من الـ dropdown
    */
   onSectionChange(): void {
     if (this.sectionValue) {
       this.data.setSelectedSection(this.sectionValue);
-      console.log('Selected Section:', this.sectionValue);
       
       // التوجيه لأول route في الـ section المختار
       const sectionRoutes: { [key: string]: string } = {
-        'btakka': 'FinishingInspectionRequest',
-        'erp': 'account',
-        'operation': 'operation' // لو عندك operation route زوده هنا
+        'BtakkaInterface': 'FinishingInspectionRequest',
+        'BtakkaErp': 'account',
+        'BtakkaOperation': 'operation'
       };
       
       const targetRoute = sectionRoutes[this.sectionValue];

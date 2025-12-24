@@ -13,17 +13,6 @@
       <app-sidebar></app-sidebar>
     </ng-container>
 
-    <app-layout
-      [hidden]="
-        base === 'layout-fullwidth' ||
-        base === 'layout-hoverview' ||
-        base === 'layout-rtl' ||
-        base === 'layout-mini' ||
-        base === 'layout-hidden' ||
-        base === 'layout-dark'
-      "
-    ></app-layout>
-
     <!-- Page Wrapper -->
     <div class="page-wrapper">
       <router-outlet></router-outlet>

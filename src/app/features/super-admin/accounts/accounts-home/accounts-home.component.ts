@@ -5,8 +5,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CommonModule } from '@angular/common';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { RouterLink } from '@angular/router';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { CollapseHeaderComponent } from '../../../common/collapse-header/collapse-header.component';
+import { MatSortModule } from '@angular/material/sort';
 import { CustomPaginationComponent, PageChangeEvent } from '../../../../shared/components/custom-pagination/custom-pagination.component';
 import { routes } from '../../../../shared/routes/routes';
 import { IApiResponse, IApiResponseWithList } from '../../../../core/models/shared.dto';
@@ -16,7 +15,7 @@ import { AccountService } from '../../../../core/services/account.service';
 @Component({
   selector: 'app-accounts-home',
   standalone: true,
-  imports: [CollapseHeaderComponent, ReactiveFormsModule, SelectModule, MultiSelectModule, FormsModule, CommonModule, BsDatepickerModule, RouterLink, CustomPaginationComponent, MatSortModule],
+  imports: [ ReactiveFormsModule, SelectModule, MultiSelectModule, FormsModule, CommonModule, BsDatepickerModule, RouterLink, CustomPaginationComponent, MatSortModule],
   templateUrl: './accounts-home.component.html',
   styleUrl: './accounts-home.component.scss'
 })

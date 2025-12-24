@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router, Event as RouterEvent, RouterModule } from '@angular/router';
 
 import { CommonModule } from '@angular/common';
-import { LayoutComponent } from './common/layout/layout.component';
 import { SidebarComponent } from './common/sidebar/sidebar.component';
 import { HeaderComponent } from './common/header/header.component';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -21,7 +20,7 @@ export interface RouterObject {
 @Component({
   selector: 'app-features',
   standalone:true,
-  imports: [RouterModule,CommonModule,LayoutComponent,SidebarComponent,HeaderComponent,SpinnerComponent],
+  imports: [RouterModule,CommonModule,SidebarComponent,HeaderComponent,SpinnerComponent],
   templateUrl: './features.component.html',
   styleUrl: './features.component.scss'
 })

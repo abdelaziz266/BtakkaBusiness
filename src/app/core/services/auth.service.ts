@@ -26,8 +26,7 @@ export class AuthService {
       userName,
       password
     }; 
-    debugger;
-    return this.http.post(`${this.apiUrl}Login`, body, {
+    return this.http.post(`${this.apiUrl}login`, body, {
       headers: { 'Skip-Interceptor': 'true' }
     });
   }

@@ -6,7 +6,7 @@ import { SectionGuard } from './core/guard/section.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'account',
+    redirectTo: 'Account',
     pathMatch: 'full'
   },
 
@@ -26,12 +26,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/super-admin/super-admin.component').then(m => m.SuperAdminComponent),
         children: [
           {
-            path: 'account', // 👈 كده URL هيبقى /accounts
+            path: 'Account', // 👈 كده URL هيبقى /accounts
             loadComponent: () => import('./features/super-admin/accounts/accounts-home/accounts-home.component').then(m => m.AccountsHomeComponent),
             canActivate: [AuthGuard, SectionGuard]
           },
           {
-            path: 'cost-center', // 👈 كده URL هيبقى /co
+            path: 'Cost-Center', // 👈 كده URL هيبقى /co
             loadComponent: () => import('./features/super-admin/CostCenter/cost-center-home/cost-center-home.component').then(m => m.CostCenterHomeComponent),
             canActivate: [AuthGuard, SectionGuard]
           },
@@ -56,7 +56,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'account',
+    redirectTo: 'Account',
     pathMatch: 'full'
   }
 ] as const;
